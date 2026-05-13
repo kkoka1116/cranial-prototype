@@ -1,0 +1,39 @@
+# Baseline: symmetric infant head, no corrections, simple trim line.
+# Use this as the smoke-test config and as the geometric reference.
+name: baseline
+
+head:
+  length_mm: 165.0
+  width_mm: 130.0
+  height_mm: 115.0
+  subdivisions: 5
+  # No deformations — symmetric ellipsoid.
+  occipital_flat_mm: 0.0
+  frontal_bossing_mm: 0.0
+  brachycephaly_factor: 1.0
+
+shell:
+  relief_mm: 3.0
+  wall_thickness_mm: 3.5
+  correction_regions: []
+
+trim:
+  # Trim line below the equator, with a slight rise over the ears to clear
+  # them. Covers the top of the head plus a band reaching ~mid-skull on
+  # the front and ~upper occiput on the back.
+  cut_depth_mm: 80.0
+  control_points:
+    - { azimuth_deg:   0.0, elevation_deg: -15.0 }   # +Y (anterior)
+    - { azimuth_deg:  45.0, elevation_deg: -12.0 }
+    - { azimuth_deg:  90.0, elevation_deg:   0.0 }   # +X (right ear)
+    - { azimuth_deg: 135.0, elevation_deg: -12.0 }
+    - { azimuth_deg: 180.0, elevation_deg: -18.0 }   # -Y (posterior)
+    - { azimuth_deg: 225.0, elevation_deg: -12.0 }
+    - { azimuth_deg: 270.0, elevation_deg:   0.0 }   # -X (left ear)
+    - { azimuth_deg: 315.0, elevation_deg: -12.0 }
+
+validation:
+  min_wall_thickness_mm: 3.0
+  max_mass_g: 250.0
+  max_bbox_extent_mm: 250.0
+  material_density_g_per_cm3: 1.27

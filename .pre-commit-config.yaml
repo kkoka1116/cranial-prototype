@@ -1,0 +1,29 @@
+# Pre-commit hooks. Install with `uv run pre-commit install`.
+#
+# The "no-llm-imports-in-kernel" hook enforces invariant #1 in CLAUDE.md:
+# the kernel produces geometry, the LLM produces parameters — there is no
+# LLM call under kernel/. The hook is intentionally narrow: it only scans
+# kernel/, not other directories.
+
+repos:
+  - repo: local
+    hooks:
+      - id: no-llm-imports-in-kernel
+        name: no LLM SDK imports under kernel/
+        entry: python scripts/check_no_llm_imports.py
+        language: system
+        types: [python]
+        files: ^kernel/
+        pass_filenames: false
+
+      - id: ruff
+        name: ruff
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+
+      - id: ruff-format
+        name: ruff-format
+        entry: uv run ruff format
+        language: system
+        types: [python]
