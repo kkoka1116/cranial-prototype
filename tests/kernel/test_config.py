@@ -34,8 +34,12 @@ def test_head_config_rejects_negative_dimensions() -> None:
 def test_correction_region_rejects_unknown_falloff() -> None:
     with pytest.raises(ValidationError):
         CorrectionRegion(
-            x_mm=0, y_mm=0, z_mm=0,
-            radius_mm=10.0, magnitude_mm=1.0, falloff="cubic",  # noqa
+            x_mm=0,
+            y_mm=0,
+            z_mm=0,
+            radius_mm=10.0,
+            magnitude_mm=1.0,
+            falloff="cubic",  # noqa
         )
 
 

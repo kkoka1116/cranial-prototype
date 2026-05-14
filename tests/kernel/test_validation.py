@@ -117,8 +117,11 @@ def test_check_min_wall_thickness_rejects_zero_limit() -> None:
 
 def test_validation_result_is_frozen() -> None:
     r = ValidationResult(
-        metric_name="x", passed=True, actual_value=1.0,
-        limit_value=1.0, message="ok",
+        metric_name="x",
+        passed=True,
+        actual_value=1.0,
+        limit_value=1.0,
+        message="ok",
     )
     with pytest.raises(ValidationError):
         r.passed = False  # type: ignore[misc]

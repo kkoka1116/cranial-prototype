@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel in-flight runs when a new commit is pushed to the same PR / branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Fast feedback: lint and the LLM-import guard on Ubuntu. No heavy CAD deps.
+  lint:
+    name: ruff + LLM-import guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.11.14"
+      - name: Install dev tools only
+        run: uv tool install ruff==0.7.1
+      - name: ruff check
+        run: uv tool run ruff check kernel/ tests/ scripts/
+      - name: ruff format check
+        run: uv tool run ruff format --check kernel/ tests/ scripts/
+      - name: no LLM imports under kernel/
+        run: python scripts/check_no_llm_imports.py
+
+  # Full test suite on macOS arm64 — the platform the golden STL hashes were
+  # captured on. The same-config-twice determinism test would pass on any
+  # platform, but the golden-hash test is platform-locked (manifold3d's
+  # float output is architecture-specific).
+  test:
+    name: pytest + coverage (macOS arm64)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.11.14"
+          enable-cache: true
+      - name: uv sync
+        run: uv sync --extra dev
+      - name: pytest with coverage
+        run: uv run pytest --cov=kernel --cov-report=term --cov-report=xml --cov-fail-under=80
+      - name: Upload coverage XML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+
+  # End-to-end smoke: run the CLI on every example config and confirm a
+  # valid STL drops out. Catches regressions that pytest unit tests miss.
+  e2e:
+    name: CLI smoke (all example configs)
+    runs-on: macos-14
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.11.14"
+          enable-cache: true
+      - name: uv sync
+        run: uv sync
+      - name: Generate baseline.stl
+        run: uv run python -m kernel.generate --config examples/baseline.yaml --out /tmp/baseline.stl
+      - name: Generate moderate_right_plagio.stl
+        run: uv run python -m kernel.generate --config examples/moderate_right_plagio.yaml --out /tmp/plagio.stl
+      - name: Generate brachycephaly.stl
+        run: uv run python -m kernel.generate --config examples/brachycephaly.yaml --out /tmp/brachy.stl
+      - name: Upload STL artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: example-helmets
+          path: /tmp/*.stl
+          retention-days: 14

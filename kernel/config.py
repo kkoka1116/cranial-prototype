@@ -95,9 +95,7 @@ class CorrectionRegion(BaseModel):
     y_mm: float
     z_mm: float
     radius_mm: float = Field(gt=0)
-    magnitude_mm: float = Field(
-        gt=0, description="Inward correction depth at center, in mm."
-    )
+    magnitude_mm: float = Field(gt=0, description="Inward correction depth at center, in mm.")
     falloff: str = Field(default="gaussian", pattern="^(gaussian|cosine|linear)$")
 
 
@@ -134,13 +132,9 @@ class TrimConfig(BaseModel):
 
     @model_validator(mode="after")
     def _check_unique_azimuths(self) -> TrimConfig:
-        azimuths = [
-            cp.azimuth_deg % 360.0 for cp in self.control_points
-        ]
+        azimuths = [cp.azimuth_deg % 360.0 for cp in self.control_points]
         if len(set(azimuths)) != len(azimuths):
-            raise ValueError(
-                "trim control points must have distinct azimuths (modulo 360)"
-            )
+            raise ValueError("trim control points must have distinct azimuths (modulo 360)")
         return self
 
 
@@ -158,8 +152,7 @@ class ShellConfig(BaseModel):
         default=3.0,
         gt=0,
         description=(
-            "Uniform gap between head and inner shell surface "
-            "(the inner offset distance)."
+            "Uniform gap between head and inner shell surface " "(the inner offset distance)."
         ),
     )
     wall_thickness_mm: float = Field(

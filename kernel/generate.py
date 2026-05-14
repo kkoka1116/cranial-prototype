@@ -202,9 +202,7 @@ def run_pipeline(config: KernelConfig) -> tuple[trimesh.Trimesh, list[Validation
             max_mass_g=config.validation.max_mass_g,
         )
     )
-    results.append(
-        check_bbox_within(helmet, max_extent_mm=config.validation.max_bbox_extent_mm)
-    )
+    results.append(check_bbox_within(helmet, max_extent_mm=config.validation.max_bbox_extent_mm))
     _log_event(
         "validate",
         input_hash=helmet_hash,
@@ -249,12 +247,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         prog="kernel.generate",
         description="Generate a manifold + watertight cranial helmet STL from a config.",
     )
-    p.add_argument(
-        "--config", required=True, type=Path, help="Path to YAML kernel config."
-    )
-    p.add_argument(
-        "--out", required=True, type=Path, help="Path to write the STL output."
-    )
+    p.add_argument("--config", required=True, type=Path, help="Path to YAML kernel config.")
+    p.add_argument("--out", required=True, type=Path, help="Path to write the STL output.")
     p.add_argument(
         "--log-level",
         default="INFO",

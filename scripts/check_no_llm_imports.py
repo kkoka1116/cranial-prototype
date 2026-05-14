@@ -75,9 +75,7 @@ def main() -> int:
             bad.append((py, line_no, line))
     if not bad:
         return 0
-    sys.stderr.write(
-        "FORBIDDEN LLM IMPORT under kernel/ (invariant #1, see CLAUDE.md):\n"
-    )
+    sys.stderr.write("FORBIDDEN LLM IMPORT under kernel/ (invariant #1, see CLAUDE.md):\n")
     for path, line_no, line in bad:
         sys.stderr.write(f"  {path}:{line_no}: {line.strip()}\n")
     sys.stderr.write(

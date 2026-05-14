@@ -29,13 +29,9 @@ def check_min_wall_thickness(
         raise ValueError("min_thickness_mm must be positive")
 
     rng_seed = 0
-    samples, _ = trimesh.sample.sample_surface_even(
-        inner_surface_mesh, sample_count, seed=rng_seed
-    )
+    samples, _ = trimesh.sample.sample_surface_even(inner_surface_mesh, sample_count, seed=rng_seed)
     if samples.shape[0] == 0:
-        samples, _ = trimesh.sample.sample_surface(
-            inner_surface_mesh, sample_count, seed=rng_seed
-        )
+        samples, _ = trimesh.sample.sample_surface(inner_surface_mesh, sample_count, seed=rng_seed)
 
     _, distances, _ = trimesh.proximity.closest_point(outer_surface_mesh, samples)
     actual_min = float(np.min(distances))
@@ -53,9 +49,7 @@ def check_min_wall_thickness(
     )
 
 
-def estimate_mass_g(
-    mesh: trimesh.Trimesh, density_g_per_cm3: float
-) -> float:
+def estimate_mass_g(mesh: trimesh.Trimesh, density_g_per_cm3: float) -> float:
     """Estimate mass in grams from mesh volume and material density.
 
     trimesh.volume is in the cube of the mesh's units. Our units are mm,
@@ -82,15 +76,12 @@ def check_mass(
         actual_value=mass,
         limit_value=max_mass_g,
         message=(
-            f"estimated mass {mass:.1f} g "
-            f"({'<=' if passed else '>'} limit {max_mass_g:.1f} g)"
+            f"estimated mass {mass:.1f} g " f"({'<=' if passed else '>'} limit {max_mass_g:.1f} g)"
         ),
     )
 
 
-def check_bbox_within(
-    mesh: trimesh.Trimesh, max_extent_mm: float
-) -> ValidationResult:
+def check_bbox_within(mesh: trimesh.Trimesh, max_extent_mm: float) -> ValidationResult:
     """Pass if no axis-aligned bbox dimension exceeds max_extent_mm."""
     extents = mesh.extents  # (dx, dy, dz)
     actual_max = float(np.max(extents))

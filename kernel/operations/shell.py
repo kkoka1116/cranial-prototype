@@ -85,9 +85,7 @@ def _offset_mesh(
             net -= _correction_displacement(verts, region)
 
     new_verts = verts + normals * net[:, None]
-    return trimesh.Trimesh(
-        vertices=new_verts, faces=head_mesh.faces, process=False
-    )
+    return trimesh.Trimesh(vertices=new_verts, faces=head_mesh.faces, process=False)
 
 
 def _to_manifold(mesh: trimesh.Trimesh) -> manifold3d.Manifold:
@@ -99,9 +97,7 @@ def _to_manifold(mesh: trimesh.Trimesh) -> manifold3d.Manifold:
     return manifold3d.Manifold(mesh_obj)
 
 
-def _canonicalize_mesh(
-    verts: np.ndarray, faces: np.ndarray
-) -> tuple[np.ndarray, np.ndarray]:
+def _canonicalize_mesh(verts: np.ndarray, faces: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Reorder vertices and faces into a canonical form.
 
     manifold3d's boolean output is geometrically deterministic but the
@@ -142,9 +138,7 @@ def _canonicalize_mesh(
     new_faces = rotated
 
     # 4. Sort faces lexicographically.
-    face_order = np.lexsort(
-        (new_faces[:, 2], new_faces[:, 1], new_faces[:, 0])
-    )
+    face_order = np.lexsort((new_faces[:, 2], new_faces[:, 1], new_faces[:, 0]))
     new_faces = new_faces[face_order]
 
     return new_verts, new_faces
@@ -200,14 +194,18 @@ def build_shell(
     if not outer.is_volume:
         raise GeometryError(
             "outer offset mesh is not a valid volume",
-            context={"is_winding_consistent": bool(outer.is_winding_consistent),
-                     "is_watertight": bool(outer.is_watertight)},
+            context={
+                "is_winding_consistent": bool(outer.is_winding_consistent),
+                "is_watertight": bool(outer.is_watertight),
+            },
         )
     if not inner.is_volume:
         raise GeometryError(
             "inner offset mesh is not a valid volume",
-            context={"is_winding_consistent": bool(inner.is_winding_consistent),
-                     "is_watertight": bool(inner.is_watertight)},
+            context={
+                "is_winding_consistent": bool(inner.is_winding_consistent),
+                "is_watertight": bool(inner.is_watertight),
+            },
         )
 
     # Boolean: shell = outer − inner.
@@ -227,6 +225,8 @@ def build_shell(
     shell = _from_manifold(shell_m)
     logger.debug(
         "build_shell: outer_v=%d inner_v=%d shell_v=%d",
-        len(outer.vertices), len(inner.vertices), len(shell.vertices),
+        len(outer.vertices),
+        len(inner.vertices),
+        len(shell.vertices),
     )
     return shell, inner, outer

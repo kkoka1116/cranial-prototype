@@ -39,12 +39,14 @@ def test_sorted_control_points_normalizes_negatives() -> None:
 
 
 def test_elevation_interpolates_linearly() -> None:
-    pts = _sorted_control_points([
-        TrimControlPoint(azimuth_deg=0.0, elevation_deg=0.0),
-        TrimControlPoint(azimuth_deg=90.0, elevation_deg=10.0),
-        TrimControlPoint(azimuth_deg=180.0, elevation_deg=0.0),
-        TrimControlPoint(azimuth_deg=270.0, elevation_deg=-10.0),
-    ])
+    pts = _sorted_control_points(
+        [
+            TrimControlPoint(azimuth_deg=0.0, elevation_deg=0.0),
+            TrimControlPoint(azimuth_deg=90.0, elevation_deg=10.0),
+            TrimControlPoint(azimuth_deg=180.0, elevation_deg=0.0),
+            TrimControlPoint(azimuth_deg=270.0, elevation_deg=-10.0),
+        ]
+    )
     assert _interpolate_elevation(pts, 0.0) == pytest.approx(0.0)
     assert _interpolate_elevation(pts, 45.0) == pytest.approx(5.0)
     assert _interpolate_elevation(pts, 90.0) == pytest.approx(10.0)
@@ -76,6 +78,7 @@ def test_apply_trim_rejects_invalid_input() -> None:
     )
     cfg = _flat_trim(0.0)
     from kernel.errors import GeometryError
+
     with pytest.raises(GeometryError):
         apply_trim(open_mesh, cfg)
 

@@ -68,9 +68,7 @@ def _sorted_control_points(
     return sorted(normalized, key=lambda cp: cp.azimuth_deg)
 
 
-def _interpolate_elevation(
-    sorted_points: list[TrimControlPoint], azimuth_deg: float
-) -> float:
+def _interpolate_elevation(sorted_points: list[TrimControlPoint], azimuth_deg: float) -> float:
     """Wrap-around linear interpolation of elevation at the given azimuth."""
     az = azimuth_deg % 360.0
     n = len(sorted_points)
@@ -111,12 +109,8 @@ def _build_cutting_body(
 
     tir = np.column_stack([r_inner_mm * sin_a, r_inner_mm * cos_a, z_cuts])
     tor = np.column_stack([r_outer_mm * sin_a, r_outer_mm * cos_a, z_cuts])
-    bir = np.column_stack(
-        [r_inner_mm * sin_a, r_inner_mm * cos_a, np.full(n, z_floor_mm)]
-    )
-    bor = np.column_stack(
-        [r_outer_mm * sin_a, r_outer_mm * cos_a, np.full(n, z_floor_mm)]
-    )
+    bir = np.column_stack([r_inner_mm * sin_a, r_inner_mm * cos_a, np.full(n, z_floor_mm)])
+    bor = np.column_stack([r_outer_mm * sin_a, r_outer_mm * cos_a, np.full(n, z_floor_mm)])
 
     verts = np.vstack([tir, tor, bir, bor])
 

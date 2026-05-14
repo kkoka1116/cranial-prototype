@@ -10,11 +10,18 @@ goldens with:
     uv run python -m kernel.generate --config examples/<name>.yaml --out /tmp/h.stl
 
 The hash printed to stdout is the new golden.
+
+Platform note: the golden hashes were captured on macOS arm64. manifold3d's
+boolean operations produce architecture-specific floating-point output, so
+the goldens only match bit-for-bit on the platform they were captured on.
+The cross-platform test (`test_same_config_produces_same_hash_twice`) still
+runs everywhere and catches in-process nondeterminism regardless of arch.
 """
 
 from __future__ import annotations
 
 import json
+import platform
 from pathlib import Path
 
 import pytest
@@ -27,11 +34,23 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 GOLDEN_HASHES_PATH = REPO_ROOT / "tests" / "fixtures" / "golden" / "hashes.json"
 EXAMPLES_DIR = REPO_ROOT / "examples"
 
+GOLDEN_PLATFORM = ("Darwin", "arm64")
+IS_GOLDEN_PLATFORM = (platform.system(), platform.machine()) == GOLDEN_PLATFORM
+
 
 def _load_goldens() -> dict[str, str]:
     return json.loads(GOLDEN_HASHES_PATH.read_text(encoding="utf-8"))
 
 
+@pytest.mark.skipif(
+    not IS_GOLDEN_PLATFORM,
+    reason=(
+        f"Golden STL hashes were captured on {GOLDEN_PLATFORM[0]} "
+        f"{GOLDEN_PLATFORM[1]}; manifold3d's float output is "
+        f"architecture-specific. Current: "
+        f"{platform.system()} {platform.machine()}."
+    ),
+)
 @pytest.mark.parametrize(
     "config_name",
     ["baseline", "moderate_right_plagio", "brachycephaly"],

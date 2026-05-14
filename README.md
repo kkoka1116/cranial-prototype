@@ -1,5 +1,7 @@
 # cranial-prototype
 
+[![CI](https://github.com/kkoka1116/cranial-prototype/actions/workflows/ci.yml/badge.svg)](https://github.com/kkoka1116/cranial-prototype/actions/workflows/ci.yml)
+
 Deterministic geometric kernel for custom cranial remolding helmets.
 Week 1 prototype — kernel only, no AI layer yet.
 

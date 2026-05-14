@@ -21,9 +21,7 @@ def test_no_llm_imports_under_kernel() -> None:
         text=True,
         check=False,
     )
-    assert result.returncode == 0, (
-        f"Forbidden LLM imports detected under kernel/:\n{result.stderr}"
-    )
+    assert result.returncode == 0, f"Forbidden LLM imports detected under kernel/:\n{result.stderr}"
 
 
 def test_script_detects_forbidden_import(tmp_path: Path) -> None:

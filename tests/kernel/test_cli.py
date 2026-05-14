@@ -12,11 +12,16 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 def test_cli_succeeds_on_baseline(tmp_path: Path) -> None:
     out = tmp_path / "helmet.stl"
-    rc = main([
-        "--config", str(REPO_ROOT / "examples" / "baseline.yaml"),
-        "--out", str(out),
-        "--log-level", "ERROR",
-    ])
+    rc = main(
+        [
+            "--config",
+            str(REPO_ROOT / "examples" / "baseline.yaml"),
+            "--out",
+            str(out),
+            "--log-level",
+            "ERROR",
+        ]
+    )
     assert rc == 0
     assert out.exists()
     # Non-empty STL.
@@ -25,11 +30,16 @@ def test_cli_succeeds_on_baseline(tmp_path: Path) -> None:
 
 
 def test_cli_fails_on_missing_config(tmp_path: Path) -> None:
-    rc = main([
-        "--config", str(tmp_path / "nope.yaml"),
-        "--out", str(tmp_path / "helmet.stl"),
-        "--log-level", "ERROR",
-    ])
+    rc = main(
+        [
+            "--config",
+            str(tmp_path / "nope.yaml"),
+            "--out",
+            str(tmp_path / "helmet.stl"),
+            "--log-level",
+            "ERROR",
+        ]
+    )
     assert rc != 0
 
 
@@ -40,6 +50,7 @@ def test_cli_fails_on_invalid_geometry(tmp_path: Path) -> None:
     thickness, so validation fails.
     """
     import yaml
+
     cfg = {
         "name": "too-thin",
         "shell": {"wall_thickness_mm": 1.0, "relief_mm": 3.0},
@@ -59,11 +70,16 @@ def test_cli_fails_on_invalid_geometry(tmp_path: Path) -> None:
     }
     cfg_path = tmp_path / "thin.yaml"
     cfg_path.write_text(yaml.safe_dump(cfg), encoding="utf-8")
-    rc = main([
-        "--config", str(cfg_path),
-        "--out", str(tmp_path / "out.stl"),
-        "--log-level", "ERROR",
-    ])
+    rc = main(
+        [
+            "--config",
+            str(cfg_path),
+            "--out",
+            str(tmp_path / "out.stl"),
+            "--log-level",
+            "ERROR",
+        ]
+    )
     assert rc != 0
 
 

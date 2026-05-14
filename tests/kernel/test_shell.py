@@ -39,6 +39,7 @@ def test_shell_wall_thickness_matches_config(baseline_head) -> None:
 
     # Sample inner; closest-point to outer should be ~wall_thickness.
     import trimesh
+
     samples, _ = trimesh.sample.sample_surface_even(inner, 1000, seed=0)
     _, distances, _ = trimesh.proximity.closest_point(outer, samples)
     assert distances.min() == pytest.approx(4.0, abs=0.1)
@@ -49,13 +50,15 @@ def test_correction_thins_wall_locally(baseline_head) -> None:
     """A correction region should locally subtract from wall thickness."""
     regions = [
         CorrectionRegion(
-            x_mm=0.0, y_mm=70.0, z_mm=30.0,
-            radius_mm=30.0, magnitude_mm=1.5, falloff="gaussian",
+            x_mm=0.0,
+            y_mm=70.0,
+            z_mm=30.0,
+            radius_mm=30.0,
+            magnitude_mm=1.5,
+            falloff="gaussian",
         )
     ]
-    cfg = ShellConfig(
-        relief_mm=3.0, wall_thickness_mm=4.0, correction_regions=regions
-    )
+    cfg = ShellConfig(relief_mm=3.0, wall_thickness_mm=4.0, correction_regions=regions)
     _shell, inner, outer = build_shell(baseline_head, cfg)
 
     # At the correction center, wall thickness should be ~4 - 1.5 = 2.5 mm.
@@ -66,6 +69,7 @@ def test_correction_thins_wall_locally(baseline_head) -> None:
     closest_idx = int(np.argmin(np.linalg.norm(inner_v - target, axis=1)))
     nearest_point = inner_v[closest_idx]
     import trimesh
+
     _, dist, _ = trimesh.proximity.closest_point(outer, nearest_point.reshape(1, 3))
     # Center magnitude is full 1.5 mm, so wall ≈ 2.5 mm.
     assert dist[0] == pytest.approx(2.5, abs=0.2)
@@ -76,8 +80,12 @@ def test_falloff_modes_all_work() -> None:
     verts = np.array([[0.0, 0.0, 0.0], [50.0, 0.0, 0.0], [200.0, 0.0, 0.0]])
     for mode in ("gaussian", "cosine", "linear"):
         region = CorrectionRegion(
-            x_mm=0.0, y_mm=0.0, z_mm=0.0,
-            radius_mm=50.0, magnitude_mm=2.0, falloff=mode,
+            x_mm=0.0,
+            y_mm=0.0,
+            z_mm=0.0,
+            radius_mm=50.0,
+            magnitude_mm=2.0,
+            falloff=mode,
         )
         disp = _correction_displacement(verts, region)
         # All falloffs are full magnitude at the center.
