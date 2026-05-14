@@ -30,7 +30,9 @@ def check_min_wall_thickness(
 
     rng_seed = 0
     samples, _ = trimesh.sample.sample_surface_even(inner_surface_mesh, sample_count, seed=rng_seed)
-    if samples.shape[0] == 0:
+    if (
+        samples.shape[0] == 0
+    ):  # pragma: no cover — defensive fallback for the rare case sample_surface_even returns zero samples on a thin/degenerate mesh
         samples, _ = trimesh.sample.sample_surface(inner_surface_mesh, sample_count, seed=rng_seed)
 
     _, distances, _ = trimesh.proximity.closest_point(outer_surface_mesh, samples)

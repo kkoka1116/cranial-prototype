@@ -8,23 +8,37 @@ head:
   width_mm: 130.0
   height_mm: 115.0
   subdivisions: 5
-  # Right-side occipital flattening: indent on the posterior, offset to +X.
-  occipital_flat_mm: 8.0
-  occipital_flat_radius_mm: 45.0
-  occipital_flat_lateral_offset_mm: 30.0  # +X = right
+  # Moderate right-side occipital flattening: deeper indent (15 mm) and a
+  # broader region (55 mm), shifted laterally to +X. The deeper indent
+  # produces a visibly asymmetric head so the resulting corrective helmet
+  # is clinically distinguishable from the baseline.
+  occipital_flat_mm: 15.0
+  occipital_flat_radius_mm: 55.0
+  occipital_flat_lateral_offset_mm: 35.0  # +X = right
   frontal_bossing_mm: 0.0
   brachycephaly_factor: 1.0
 
 shell:
   relief_mm: 3.0
-  wall_thickness_mm: 4.0
-  # Single correction zone on the left-frontal region (the contralateral
-  # prominence). Magnitude is bounded so that
-  #   wall_thickness - magnitude >= min_wall_thickness_mm (3.0).
+  wall_thickness_mm: 4.5      # slightly thicker to leave headroom for correction
+  # Two correction zones: a primary left-frontal correction (the typical
+  # contralateral prominence of right-posterior plagiocephaly), and a
+  # smaller right-posterior pressure point to discourage further flattening.
+  # Magnitudes bounded so wall_thickness - magnitude >= min_wall_thickness_mm (3.0).
+  # z_mm values are in the canonical skull-base-at-origin frame: the head
+  # spans z = 0 to z = height_mm (115). z ≈ 80–95 mm is the upper cranium
+  # where the typical contralateral prominence and the residual flattening
+  # sit on an 8-month-old infant.
   correction_regions:
-    - x_mm: -40.0
+    - x_mm: -45.0
       y_mm:  55.0
-      z_mm:  30.0
+      z_mm:  87.5
+      radius_mm: 40.0
+      magnitude_mm: 1.4
+      falloff: gaussian
+    - x_mm:  35.0
+      y_mm: -60.0
+      z_mm:  82.5
       radius_mm: 35.0
       magnitude_mm: 1.0
       falloff: gaussian

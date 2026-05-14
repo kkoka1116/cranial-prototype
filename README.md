@@ -13,6 +13,7 @@ Requires Python 3.11+ and [`uv`](https://docs.astral.sh/uv/).
 
 ```bash
 uv sync --extra dev
+uv run pre-commit install      # install the LLM-import guard hook (invariant #1)
 ```
 
 ## Generate a helmet

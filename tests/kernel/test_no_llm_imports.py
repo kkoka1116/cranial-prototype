@@ -48,3 +48,39 @@ def test_script_allows_legitimate_imports(tmp_path: Path) -> None:
     import scripts.check_no_llm_imports as m
 
     assert m.scan_file(fake) == []
+
+
+def test_script_detects_comma_list_import(tmp_path: Path) -> None:
+    """`import json, anthropic` should still be flagged."""
+    fake = tmp_path / "bad.py"
+    fake.write_text("import json, anthropic\n", encoding="utf-8")
+    import scripts.check_no_llm_imports as m
+
+    hits = m.scan_file(fake)
+    assert len(hits) == 1
+    assert "anthropic" in hits[0][1]
+
+
+def test_script_detects_aliased_import(tmp_path: Path) -> None:
+    """`import openai as ai` should be flagged."""
+    fake = tmp_path / "bad.py"
+    fake.write_text("import openai as ai\n", encoding="utf-8")
+    import scripts.check_no_llm_imports as m
+
+    hits = m.scan_file(fake)
+    assert len(hits) == 1
+
+
+def test_script_detects_dynamic_import(tmp_path: Path) -> None:
+    """`__import__('anthropic')` and `importlib.import_module(...)` should be flagged."""
+    fake = tmp_path / "bad.py"
+    fake.write_text(
+        'x = __import__("anthropic")\n'
+        "import importlib\n"
+        'y = importlib.import_module("openai.types")\n',
+        encoding="utf-8",
+    )
+    import scripts.check_no_llm_imports as m
+
+    hits = m.scan_file(fake)
+    assert len(hits) == 2

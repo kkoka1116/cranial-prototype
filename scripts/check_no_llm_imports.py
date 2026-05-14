@@ -34,11 +34,22 @@ FORBIDDEN_PACKAGES = {
     "langchain",
 }
 
-# Matches: `import anthropic`, `from anthropic import ...`,
-#          `import anthropic.foo`, `from anthropic.foo import ...`.
+# Catches:
+#   import X                         (and `import X as foo`)
+#   import X.Y
+#   import X, Y, Z                   (comma list — any forbidden module hits)
+#   from X import ...
+#   from X.Y import ...
+# The `imp` capture allows commas / spaces / `as` aliases so we can split it
+# downstream and check every imported name on the line.
 _IMPORT_RE = re.compile(
-    r"^\s*(?:from\s+(?P<from>[a-zA-Z_][\w\.]*)|import\s+(?P<imp>[a-zA-Z_][\w\.]*))",
+    r"^\s*(?:from\s+(?P<from>[a-zA-Z_][\w\.]*)" r"|import\s+(?P<imp>[a-zA-Z_][\w\.,\s]*))",
     flags=re.MULTILINE,
+)
+# Catches dynamic imports like __import__("anthropic") or
+# importlib.import_module("openai.types").
+_DYNAMIC_RE = re.compile(
+    r"""(?:__import__|importlib\.import_module)\s*\(\s*['"]""" r"""(?P<mod>[a-zA-Z_][\w\.]*)['"]"""
 )
 
 KERNEL_DIR = Path(__file__).resolve().parent.parent / "kernel"
@@ -52,16 +63,32 @@ def scan_file(path: Path) -> list[tuple[int, str]]:
     """Return list of (line_no, line) where forbidden imports appear."""
     hits: list[tuple[int, str]] = []
     text = path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+
     for match in _IMPORT_RE.finditer(text):
-        module = match.group("from") or match.group("imp")
-        if not module:
-            continue
+        candidates: list[str] = []
+        if match.group("from"):
+            candidates.append(match.group("from"))
+        if match.group("imp"):
+            # `import a, b as c, d.e` → split on commas, strip ` as alias`, keep first token.
+            for piece in match.group("imp").split(","):
+                token = piece.strip().split()[0] if piece.strip() else ""
+                if token:
+                    candidates.append(token)
+        for module in candidates:
+            root = _module_root(module)
+            if module in FORBIDDEN_PACKAGES or root in FORBIDDEN_PACKAGES:
+                line_no = text[: match.start()].count("\n") + 1
+                hits.append((line_no, lines[line_no - 1]))
+                break  # one hit per import line is enough
+
+    for match in _DYNAMIC_RE.finditer(text):
+        module = match.group("mod")
         root = _module_root(module)
         if module in FORBIDDEN_PACKAGES or root in FORBIDDEN_PACKAGES:
-            # Find line number.
             line_no = text[: match.start()].count("\n") + 1
-            line_text = text.splitlines()[line_no - 1]
-            hits.append((line_no, line_text))
+            hits.append((line_no, lines[line_no - 1]))
+
     return hits
 
 

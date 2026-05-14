@@ -108,11 +108,27 @@ def test_check_min_wall_thickness_fails_when_too_thin() -> None:
     assert not res.passed
 
 
+def test_estimate_mass_g_rejects_nonpositive_density() -> None:
+    """Density must be positive — zero and negative are both rejected."""
+    cube = trimesh.creation.box(extents=(10, 10, 10))
+    with pytest.raises(ValueError, match="density must be positive"):
+        estimate_mass_g(cube, density_g_per_cm3=0.0)
+    with pytest.raises(ValueError, match="density must be positive"):
+        estimate_mass_g(cube, density_g_per_cm3=-1.0)
+
+
 def test_check_min_wall_thickness_rejects_zero_limit() -> None:
     head = generate_test_head(HeadConfig(subdivisions=3))
     _shell, inner, outer = build_shell(head, ShellConfig())
     with pytest.raises(ValueError):
         check_min_wall_thickness(inner, outer, min_thickness_mm=0.0)
+
+
+def test_check_min_wall_thickness_rejects_negative_limit() -> None:
+    head = generate_test_head(HeadConfig(subdivisions=3))
+    _shell, inner, outer = build_shell(head, ShellConfig())
+    with pytest.raises(ValueError):
+        check_min_wall_thickness(inner, outer, min_thickness_mm=-1.0)
 
 
 def test_validation_result_is_frozen() -> None:

@@ -162,6 +162,13 @@ def _build_cutting_body(
         faces.append([a, b, d])
 
     mesh = trimesh.Trimesh(vertices=verts, faces=faces, process=False)
+    # fix_normals is empirically deterministic for our pinned trimesh version
+    # (4.5.3): the same input mesh always produces the same output ordering.
+    # The same-config-twice determinism tests cover this. (The note in
+    # kernel/operations/shell.py about fix_normals being non-deterministic
+    # applied to a different code path — graph traversal over manifold3d's
+    # boolean output, which is a different problem from fixing winding on a
+    # mesh we constructed deterministically here.)
     mesh.fix_normals()
     return mesh
 
