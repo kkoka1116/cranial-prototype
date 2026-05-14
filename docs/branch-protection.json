@@ -1,0 +1,27 @@
+{
+  "_comment": "Ruleset payload for main. Apply when the repo is public or the account is GitHub Pro (free private repos can't use rulesets / branch protection). Command: gh api -X POST repos/<owner>/<repo>/rulesets --input docs/branch-protection.json",
+  "name": "main-ci-required",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "include": ["refs/heads/main"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {"type": "deletion"},
+    {"type": "non_fast_forward"},
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": false,
+        "required_status_checks": [
+          {"context": "ruff + LLM-import guard"},
+          {"context": "pytest + coverage (macOS arm64)"},
+          {"context": "CLI smoke (all example configs)"}
+        ]
+      }
+    }
+  ]
+}

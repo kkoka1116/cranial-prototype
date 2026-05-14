@@ -46,3 +46,17 @@ landmark detection, no semantic objects. Those layers arrive in later weeks.
 
 The architectural invariant for the whole project: **the LLM proposes
 parameters; the kernel produces geometry; never the reverse.**
+
+## Repo conventions
+
+- `main` is the default branch. CI runs on every push to `main` and on every
+  PR. **Branch protection / rulesets are not currently enforced** — the
+  feature requires GitHub Pro on private repos. Practically: keep direct
+  pushes to `main` to CI-passing commits only. If we go public or upgrade,
+  the ruleset payload is staged in [`docs/branch-protection.json`](docs/branch-protection.json).
+- Conventional Commits (`feat:`, `fix:`, `chore:`, `test:`, `docs:`).
+- The pre-commit hook ([`scripts/check_no_llm_imports.py`](scripts/check_no_llm_imports.py))
+  enforces invariant #1 (no LLM SDK imports under `kernel/`). CI also runs
+  the same check independently.
+- The three example helmet STLs are produced fresh on every CI run and
+  attached to the workflow run as artifacts (`example-helmets`).
