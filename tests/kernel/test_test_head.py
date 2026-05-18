@@ -41,16 +41,17 @@ def test_brachycephaly_compresses_y() -> None:
 def test_occipital_flattening_is_asymmetric_when_offset() -> None:
     """A right-offset occipital indent should pull the posterior-right
     surface inward more than the posterior-left."""
-    asym = generate_test_head(
-        HeadConfig(
-            occipital_flat_mm=10.0,
-            occipital_flat_radius_mm=40.0,
-            occipital_flat_lateral_offset_mm=30.0,
-        )
+    cfg = HeadConfig(
+        occipital_flat_mm=10.0,
+        occipital_flat_radius_mm=40.0,
+        occipital_flat_lateral_offset_mm=30.0,
     )
+    asym = generate_test_head(cfg)
     verts = np.array(asym.vertices)
-    # Sample vertices on the back (-Y), near the equator (Z near 0).
-    back_mask = (verts[:, 1] < -30.0) & (np.abs(verts[:, 2]) < 20.0)
+    # Sample vertices on the back (-Y), near the head's vertical midline.
+    # After the lift, the equator of the ellipsoid is at z = height_mm / 2.
+    equator_z = cfg.height_mm / 2.0
+    back_mask = (verts[:, 1] < -30.0) & (np.abs(verts[:, 2] - equator_z) < 20.0)
     back = verts[back_mask]
     right_back = back[back[:, 0] > 10.0]
     left_back = back[back[:, 0] < -10.0]

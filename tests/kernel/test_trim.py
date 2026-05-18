@@ -54,16 +54,21 @@ def test_elevation_interpolates_linearly() -> None:
 
 
 def test_apply_trim_removes_bottom_and_keeps_top() -> None:
+    """A flat trim at elevation 0° should remove the lower half, not the upper."""
     head = generate_test_head(HeadConfig())
     shell, _inner, _outer = build_shell(head, ShellConfig())
-    # Flat trim at elevation 0° cuts the helmet at z = bbox_radius * 0 = z_centroid.
     cfg = _flat_trim(0.0)
     trimmed = apply_trim(shell, cfg)
     assert trimmed.is_winding_consistent
     assert trimmed.is_volume
     assert trimmed.is_watertight
-    # Trim removed the bottom half, so trimmed.volume should be ~half the shell.
+    # Volume reduction: trim took out a substantial chunk.
     assert trimmed.volume < shell.volume * 0.7
+    # Directional assertion: the volume-weighted centroid moves clearly upward
+    # after cutting the bottom. The shell's centroid sits near z=0 (helmet
+    # wraps a head ellipsoid centered on origin); removing the lower half
+    # should push the centroid well above z=0.
+    assert trimmed.centroid[2] > shell.centroid[2] + 10.0
 
 
 def test_apply_trim_rejects_invalid_input() -> None:
@@ -81,6 +86,66 @@ def test_apply_trim_rejects_invalid_input() -> None:
 
     with pytest.raises(GeometryError):
         apply_trim(open_mesh, cfg)
+
+
+def test_trim_raises_on_empty_boolean(monkeypatch) -> None:
+    """If manifold3d's boolean returns an empty result (e.g., due to a
+    pathological cutter that fully contains the helmet), apply_trim must
+    raise GeometryError rather than returning an invalid mesh.
+
+    The empty-result branch is defense-in-depth — manifold3d rarely returns
+    an empty result on real helmet inputs even when the cutter is large —
+    so we trigger it by monkey-patching `_to_manifold` to return a manifold
+    whose subtraction yields empty.
+    """
+    import manifold3d
+
+    import kernel.operations.trim as trim_mod
+    from kernel.errors import GeometryError
+
+    head = generate_test_head(HeadConfig())
+    shell, _i, _o = build_shell(head, ShellConfig())
+
+    real_to_manifold = trim_mod._to_manifold
+    call_count = {"n": 0}
+
+    def fake_to_manifold(mesh):
+        call_count["n"] += 1
+        m = real_to_manifold(mesh)
+        # The second call wraps the cutter — replace it with a giant cube
+        # that fully contains the helmet so `helmet - cutter` is empty.
+        if call_count["n"] == 2:
+            return manifold3d.Manifold.cube([1000.0, 1000.0, 1000.0], center=True)
+        return m
+
+    monkeypatch.setattr(trim_mod, "_to_manifold", fake_to_manifold)
+
+    with pytest.raises(GeometryError, match="empty manifold"):
+        apply_trim(shell, _flat_trim(0.0))
+
+
+def test_trim_raises_on_invalid_cutter(monkeypatch) -> None:
+    """If the constructed cutting body is not a valid volume, apply_trim must raise."""
+    import trimesh
+
+    import kernel.operations.trim as trim_mod
+    from kernel.errors import GeometryError
+
+    head = generate_test_head(HeadConfig())
+    shell, _i, _o = build_shell(head, ShellConfig())
+
+    # Replace _build_cutting_body with one that returns a degenerate open mesh.
+    def fake_build(*_a, **_kw):
+        return trimesh.Trimesh(
+            vertices=[[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+            faces=[[0, 1, 2]],
+            process=False,
+        )
+
+    monkeypatch.setattr(trim_mod, "_build_cutting_body", fake_build)
+
+    with pytest.raises(GeometryError, match="not a valid volume"):
+        apply_trim(shell, _flat_trim(0.0))
 
 
 def test_duplicate_azimuths_rejected_by_validator() -> None:

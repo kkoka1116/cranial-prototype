@@ -19,19 +19,21 @@ head:
 shell:
   relief_mm: 3.0
   wall_thickness_mm: 4.0
+  # z_mm values are in the canonical skull-base-at-origin frame: head
+  # spans z = 0 (base) to z = height_mm (115).
   correction_regions:
     # Anterior correction — press on the prominent forehead.
     # Magnitude bounded so wall_thickness - magnitude >= 3.0 mm.
     - x_mm:  0.0
       y_mm:  60.0
-      z_mm:  30.0
+      z_mm:  87.5
       radius_mm: 40.0
       magnitude_mm: 0.8
       falloff: gaussian
     # Posterior correction — press on the broad back.
     - x_mm:  0.0
       y_mm: -55.0
-      z_mm:  30.0
+      z_mm:  87.5
       radius_mm: 45.0
       magnitude_mm: 0.8
       falloff: gaussian

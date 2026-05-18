@@ -29,7 +29,8 @@ def test_cli_succeeds_on_baseline(tmp_path: Path) -> None:
     assert len(data) > 100
 
 
-def test_cli_fails_on_missing_config(tmp_path: Path) -> None:
+def test_cli_exits_2_on_missing_config(tmp_path: Path) -> None:
+    """Config-load failure returns exit code 2."""
     rc = main(
         [
             "--config",
@@ -40,15 +41,11 @@ def test_cli_fails_on_missing_config(tmp_path: Path) -> None:
             "ERROR",
         ]
     )
-    assert rc != 0
+    assert rc == 2
 
 
-def test_cli_fails_on_invalid_geometry(tmp_path: Path) -> None:
-    """A config that produces an invalid mesh exits non-zero.
-
-    We force this by setting min_wall_thickness above the physical wall
-    thickness, so validation fails.
-    """
+def test_cli_exits_3_on_wall_thickness_failure(tmp_path: Path) -> None:
+    """A config that produces a too-thin wall returns exit code 3 (validation failure)."""
     import yaml
 
     cfg = {
@@ -80,7 +77,55 @@ def test_cli_fails_on_invalid_geometry(tmp_path: Path) -> None:
             "ERROR",
         ]
     )
-    assert rc != 0
+    assert rc == 3
+    # Pipeline must NOT have written an STL on failure.
+    assert not (tmp_path / "out.stl").exists()
+
+
+def test_cli_exits_4_on_geometry_error(tmp_path: Path, monkeypatch) -> None:
+    """Force a GeometryError mid-pipeline and confirm the CLI returns 4."""
+    import kernel.generate as generate_mod
+    from kernel.errors import GeometryError
+
+    def boom(*_a, **_kw):
+        raise GeometryError("synthetic geometry failure", context={"why": "test"})
+
+    monkeypatch.setattr(generate_mod, "build_shell", boom)
+
+    rc = main(
+        [
+            "--config",
+            str(REPO_ROOT / "examples" / "baseline.yaml"),
+            "--out",
+            str(tmp_path / "out.stl"),
+            "--log-level",
+            "ERROR",
+        ]
+    )
+    assert rc == 4
+
+
+def test_cli_exits_5_on_generic_kernel_error(tmp_path: Path, monkeypatch) -> None:
+    """A plain KernelError (neither validation nor geometry) returns 5."""
+    import kernel.generate as generate_mod
+    from kernel.errors import KernelError
+
+    def boom(*_a, **_kw):
+        raise KernelError("synthetic kernel failure")
+
+    monkeypatch.setattr(generate_mod, "build_shell", boom)
+
+    rc = main(
+        [
+            "--config",
+            str(REPO_ROOT / "examples" / "baseline.yaml"),
+            "--out",
+            str(tmp_path / "out.stl"),
+            "--log-level",
+            "ERROR",
+        ]
+    )
+    assert rc == 5
 
 
 def test_run_pipeline_returns_helmet_and_results() -> None:

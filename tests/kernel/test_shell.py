@@ -48,11 +48,13 @@ def test_shell_wall_thickness_matches_config(baseline_head) -> None:
 
 def test_correction_thins_wall_locally(baseline_head) -> None:
     """A correction region should locally subtract from wall thickness."""
+    # The synthetic head spans z = 0 (skull base) to z = 115 (vertex) in
+    # the canonical frame. Place the correction at upper-anterior cranium.
     regions = [
         CorrectionRegion(
             x_mm=0.0,
             y_mm=70.0,
-            z_mm=30.0,
+            z_mm=87.5,
             radius_mm=30.0,
             magnitude_mm=1.5,
             falloff="gaussian",
@@ -65,7 +67,7 @@ def test_correction_thins_wall_locally(baseline_head) -> None:
     # Find the inner vertex closest to the correction center, then check
     # distance to outer.
     inner_v = np.array(inner.vertices)
-    target = np.array([0.0, 70.0, 30.0])
+    target = np.array([0.0, 70.0, 87.5])
     closest_idx = int(np.argmin(np.linalg.norm(inner_v - target, axis=1)))
     nearest_point = inner_v[closest_idx]
     import trimesh
@@ -103,6 +105,21 @@ def test_falloff_modes_all_work() -> None:
             # At the radius, linear weight = 0.
             assert disp[1] == pytest.approx(0.0, abs=1e-9)
             assert disp[2] == pytest.approx(0.0, abs=1e-9)
+
+
+def test_build_shell_raises_on_bad_input() -> None:
+    """A degenerate head input (single triangle) is not a valid volume — must raise."""
+    import trimesh
+
+    from kernel.errors import GeometryError
+
+    bad = trimesh.Trimesh(
+        vertices=[[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+        faces=[[0, 1, 2]],
+        process=False,
+    )
+    with pytest.raises(GeometryError, match="not a valid volume"):
+        build_shell(bad, ShellConfig())
 
 
 def test_canonicalize_mesh_is_idempotent() -> None:

@@ -68,11 +68,10 @@ def _offset_mesh(
     per-vertex inward corrections subtracted from the offset.
 
     Preserves face topology (every vertex displaces along its own normal),
-    so the offset mesh has the same winding as the input. The input
-    head mesh is assumed to have correct outward normals (the synthetic
-    head primitive ensures this), so we skip trimesh.fix_normals here —
-    fix_normals uses adjacency-graph traversal whose order varies across
-    runs, which would break determinism (invariant #2).
+    so the offset mesh has the same winding as the input. The input head
+    mesh is assumed to have correct outward normals (the synthetic head
+    primitive ensures this via its own fix_normals pass), so we don't
+    re-fix here — re-fixing would be a no-op on a well-wound mesh.
     """
     verts = np.array(head_mesh.vertices, dtype=np.float64)
     normals = np.array(head_mesh.vertex_normals, dtype=np.float64)
@@ -148,11 +147,14 @@ def _from_manifold(m: manifold3d.Manifold) -> trimesh.Trimesh:
     """Convert a manifold3d.Manifold back to a trimesh.Trimesh.
 
     Notes:
-        - We do NOT call trimesh.fix_normals. manifold3d already produces
-          consistent outward-facing winding. fix_normals can mis-orient
-          hollow bodies (turning outer−inner into outer+inner by flipping
-          interior faces), and its graph traversal is non-deterministic.
-        - We canonicalize the mesh ordering for byte-determinism.
+        - We do NOT call trimesh.fix_normals on boolean output. manifold3d
+          already produces consistent outward-facing winding, and on a
+          hollow body fix_normals can mis-orient interior faces (turning
+          outer−inner into outer+inner by flipping winding).
+        - We DO canonicalize vertex/face ordering: manifold3d's boolean
+          output is geometrically deterministic but its vertex order is
+          parallel-scheduling-dependent, so we sort to make the byte output
+          reproducible (invariant #2).
     """
     mesh_obj = m.to_mesh()
     verts = np.array(mesh_obj.vert_properties, dtype=np.float64)

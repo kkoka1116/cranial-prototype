@@ -10,7 +10,7 @@ repos:
     hooks:
       - id: no-llm-imports-in-kernel
         name: no LLM SDK imports under kernel/
-        entry: python scripts/check_no_llm_imports.py
+        entry: uv run python scripts/check_no_llm_imports.py
         language: system
         types: [python]
         files: ^kernel/

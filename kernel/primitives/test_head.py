@@ -8,20 +8,25 @@ watertight `trimesh.Trimesh` in the canonical reference frame:
     +Y: anterior.
     +Z: superior.
 
+The head's vertical extent runs from z = 0 (base, at the level of the ear
+canals) to z = height_mm (vertex, top of head).
+
 Approach:
 
 1. Start from a unit icosphere (deterministic vertex/face ordering since the
    subdivisions are fixed).
-2. Apply per-vertex anisotropic scaling to get base ellipsoid axes
-   (X = width/2, Y = length/2, Z = height/2).
-3. Lift the head so its base sits at Z=0 (we want the origin near the ear
-   canals at skull base, so we put the bottom of the ellipsoid at Z=0 and
-   rely on the centroid being inside the head).
-4. Apply deformations as vertex displacements along the outward normal:
+2. Apply per-vertex anisotropic scaling to get a base ellipsoid centered on
+   the origin (X = width/2, Y = length/2, Z = height/2).
+3. Compute outward normals from the ellipsoid implicit-surface gradient.
+4. Apply deformations as vertex displacements along those normals:
    - Occipital flattening: Gaussian indent on the posterior (-Y) side.
    - Frontal bossing:      Gaussian protrusion on the anterior (+Y) side.
    - Brachycephaly: scale the Y coordinate (post-deformation) by the
      compression factor.
+5. Lift the whole mesh by height_mm / 2 along +Z so the ellipsoid base
+   sits at z = 0 — the canonical skull-base origin per CLAUDE.md
+   invariant #4. Internal math (steps 3-4) operates in the centered frame
+   for simplicity; the lift is the final published-frame step.
 """
 
 from __future__ import annotations
@@ -99,16 +104,7 @@ def generate_test_head(config: HeadConfig) -> trimesh.Trimesh:
     )
     verts = verts * scale
 
-    # 3. Lift so the bottom of the ellipsoid is near z = 0. The origin sits
-    # roughly at the ear canals, which we model as the level where the
-    # ellipsoid crosses z = 0 from below; we leave the ellipsoid centered
-    # on z = 0 and rely on the trim line cutting below the ear canals.
-    # No lift needed — the canonical frame has +Z = superior and the
-    # ellipsoid is symmetric in Z, so the head extends from -height/2 to
-    # +height/2. The trim happens below later.
-    # (See CLAUDE.md reference frame note.)
-
-    # 4. Compute outward normals at the current ellipsoid surface. For a
+    # 3. Compute outward normals at the current ellipsoid surface. For a
     # scaled icosphere, the outward direction at vertex v is roughly v
     # itself (it's centered on origin), but the *true* outward normal on an
     # ellipsoid is the gradient of the implicit function and is NOT v/|v|.
@@ -120,7 +116,9 @@ def generate_test_head(config: HeadConfig) -> trimesh.Trimesh:
     norm_len = np.where(norm_len < 1e-12, 1.0, norm_len)
     normals = grad / norm_len
 
-    # 5. Apply Gaussian deformations as displacements along the normals.
+    # 4. Apply Gaussian deformations as displacements along the normals.
+    # _occipital_center and _frontal_center return positions in the
+    # centered-ellipsoid frame to match `verts` at this stage.
     disp = np.zeros_like(verts)
     disp += _gaussian_displacement(
         verts,
@@ -140,9 +138,14 @@ def generate_test_head(config: HeadConfig) -> trimesh.Trimesh:
     )
     verts = verts + disp
 
-    # 6. Brachycephaly: AP compression coefficient applied along Y.
+    # 5. Brachycephaly: AP compression coefficient applied along Y.
     if config.brachycephaly_factor != 1.0:
         verts[:, 1] = verts[:, 1] * config.brachycephaly_factor
+
+    # 6. Lift along +Z so the ellipsoid base sits at z = 0 — the canonical
+    # skull-base origin per CLAUDE.md invariant #4. After this lift, the
+    # head spans z = 0 (base) to z = height_mm (vertex).
+    verts[:, 2] = verts[:, 2] + config.height_mm / 2.0
 
     # 7. Build the trimesh. Faces are unchanged from the base icosphere, so
     # topology stays manifold and watertight as long as we did not invert
@@ -150,8 +153,9 @@ def generate_test_head(config: HeadConfig) -> trimesh.Trimesh:
     mesh = trimesh.Trimesh(vertices=verts, faces=faces, process=False)
 
     # process=False keeps vertex/face ordering bit-identical across runs.
-    # We do explicitly fix winding to make sure normals point outward
-    # post-deformation. fix_normals is deterministic given a fixed mesh.
+    # fix_normals is empirically deterministic for our pinned trimesh
+    # version: identical inputs always yield identical output ordering, and
+    # the same-config-twice determinism tests cover this end-to-end.
     mesh.fix_normals()
 
     return mesh
