@@ -52,7 +52,10 @@ _DYNAMIC_RE = re.compile(
     r"""(?:__import__|importlib\.import_module)\s*\(\s*['"]""" r"""(?P<mod>[a-zA-Z_][\w\.]*)['"]"""
 )
 
-KERNEL_DIR = Path(__file__).resolve().parent.parent / "kernel"
+_ROOT = Path(__file__).resolve().parent.parent
+# Both first-party packages are LLM-free: the kernel produces geometry, the
+# anatomy layer ingests scans. The LLM lives in a higher layer (week 5+).
+GUARDED_DIRS = (_ROOT / "kernel", _ROOT / "anatomy")
 
 
 def _module_root(name: str) -> str:
@@ -93,21 +96,23 @@ def scan_file(path: Path) -> list[tuple[int, str]]:
 
 
 def main() -> int:
-    if not KERNEL_DIR.is_dir():
-        # Nothing to scan — treat as success.
-        return 0
     bad: list[tuple[Path, int, str]] = []
-    for py in sorted(KERNEL_DIR.rglob("*.py")):
-        for line_no, line in scan_file(py):
-            bad.append((py, line_no, line))
+    for guarded in GUARDED_DIRS:
+        if not guarded.is_dir():
+            continue
+        for py in sorted(guarded.rglob("*.py")):
+            for line_no, line in scan_file(py):
+                bad.append((py, line_no, line))
     if not bad:
         return 0
-    sys.stderr.write("FORBIDDEN LLM IMPORT under kernel/ (invariant #1, see CLAUDE.md):\n")
+    sys.stderr.write(
+        "FORBIDDEN LLM IMPORT under kernel/ or anatomy/ (invariant #1, see CLAUDE.md):\n"
+    )
     for path, line_no, line in bad:
         sys.stderr.write(f"  {path}:{line_no}: {line.strip()}\n")
     sys.stderr.write(
-        "\nThe kernel must not import LLM SDKs. If you genuinely need this "
-        "in another layer, move it OUT of kernel/.\n"
+        "\nThe kernel and anatomy packages must not import LLM SDKs. If you "
+        "genuinely need this, it belongs in a higher layer (week 5+).\n"
     )
     return 1
 

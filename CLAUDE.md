@@ -49,6 +49,35 @@ geometry; never the reverse.** Week 1 builds the kernel side of that contract.
    kernel passes manifold + watertight checks or the kernel raises
    `KernelError`. No silently broken geometry ever escapes.
 
+7. **Scans are always processed in the canonical reference frame.** The frame
+   transformation happens exactly once, at load time. The transformation
+   matrix is logged. No measurement, no analysis, no kernel call ever runs on
+   source-frame coordinates. If you find yourself writing code that does math
+   on a scan before it has been registered, stop and register first.
+
+8. **Landmarks are anchored to mesh geometry, not free space.** When a user
+   picks a landmark, snap to the nearest vertex (or barycentric coordinates on
+   the nearest face). Free-floating 3D points are not valid landmarks. This
+   guarantees that landmarks survive mesh transformations and remain on the
+   patient surface.
+
+---
+
+## Package boundaries
+
+- `kernel/` does **geometry only** — synthetic head, shell, trim, validation,
+  STL export, CLI. No scan ingestion, no anatomical analysis.
+- `anatomy/` does **scan ingestion and anatomical analysis only** — load,
+  cleanup, landmarks, registration, measurements, annotation.
+- The two packages communicate only through well-typed function signatures
+  and **do not share state**.
+- `anatomy/` **may import from `kernel/`** read-only (e.g.
+  `kernel.validation.topology` for manifold/watertight checks,
+  `kernel.config.HeadConfig` and `kernel.primitives` for synthetic-head
+  ground-truth derivation). `kernel/` **must never import from `anatomy/`**.
+  This asymmetry is intentional: the kernel is the lower layer; anatomy
+  depends on the kernel's notion of valid geometry, never the reverse.
+
 ---
 
 ## Tech stack (versions are pinned in `pyproject.toml`)
@@ -59,7 +88,11 @@ geometry; never the reverse.** Week 1 builds the kernel side of that contract.
 - `manifold3d` 2.5 — boolean operations on meshes
 - `trimesh` 4.5 — primary mesh data type and I/O
 - `libigl` 2.5 — mesh distance queries (wall-thickness analysis)
-- `open3d` 0.18 — installed; not used until week 2
+- `open3d` 0.18 — mesh queries (used from week 2)
+- `pyvista` 0.44+ — interactive 3D mesh visualization + point picking
+  (week-2 annotation tool; pulls in VTK transitively)
+- `pymeshfix` 0.17+ — robust hole filling / non-manifold repair for raw scans
+- `scipy` 1.13 — SVD-based rigid registration (pinned explicitly from week 2)
 - `pydantic` v2 — typed configuration
 - `pytest` + `pytest-cov` — tests
 - `ruff` — linting and formatting
@@ -67,7 +100,9 @@ geometry; never the reverse.** Week 1 builds the kernel side of that contract.
 Determinism note: every numerical / mesh library above is **pinned to an exact
 version**. The golden STL hashes in `tests/fixtures/golden/` are valid only for
 the pinned versions. Any version bump must be accompanied by regenerated
-golden hashes and a code-version bump.
+golden hashes and a code-version bump. `pyvista`/VTK is used only by the
+interactive annotation tool, which is outside the deterministic pipeline; the
+landmark-derivation and measurement paths must stay bit-deterministic.
 
 ---
 
@@ -79,8 +114,10 @@ uv sync                                # install deps + create .venv
 uv sync --extra dev                    # include dev tools
 
 # Test
-uv run pytest                          # full test suite
-uv run pytest --cov=kernel             # with coverage
+uv run pytest                          # full test suite (kernel + anatomy)
+uv run pytest --cov=kernel             # kernel coverage
+uv run pytest tests/anatomy            # anatomy package only
+uv run pytest --cov=anatomy            # anatomy coverage
 uv run pytest -k determinism           # only determinism tests
 
 # Lint / format
@@ -89,6 +126,9 @@ uv run ruff format .
 
 # Generate a helmet
 uv run python -m kernel.generate --config examples/baseline.yaml --out /tmp/helmet.stl
+
+# Annotate a scan with the twelve cranial landmarks (interactive PyVista)
+uv run python -m anatomy.annotate <scan.stl> --out landmarks.json
 ```
 
 ---
@@ -129,6 +169,26 @@ When tempted to start any of the below because it would "only take an hour,"
 The structured logging in `generate.py` emits events whose shape forward-ports
 to the week-3 `AuditEvent`, but it is **not** the audit trail yet — do not
 build the audit trail this week.
+
+### Week 2 out-of-scope (anatomy ingestion only)
+
+Week 2 builds the `anatomy/` package (scan ingestion, cleanup, landmarks,
+registration, measurements, annotation). The week-1 deferrals above marked
+"— week 2" for scan loading / landmark annotation / CVAI now become in-scope.
+Still **not** building in week 2:
+
+- ❌ No learned landmark detection. No PointNet, no deep learning, no
+  fine-tuned models. Manual annotation only this week.
+- ❌ No ICP fine alignment. Landmark-based rigid registration only
+  (ICP introduces nondeterminism and is unnecessary now).
+- ❌ No Pydantic `Case` / `Design` data model integration — week 3.
+  `anatomy/` models are scoped to the anatomy domain only.
+- ❌ No anatomy → kernel connection. The kernel still takes raw
+  `(x, y, z)` correction-zone coordinates as in week 1; landmark-anchored
+  semantic objects arrive week 4.
+- ❌ No DICOM / CT / MRI import. 3D scan formats (STL/PLY/OBJ) only.
+- ❌ No mobile/photo capture, no multi-scan time-series, no real patient
+  data, no web API/frontend beyond the annotation tool.
 
 ---
 

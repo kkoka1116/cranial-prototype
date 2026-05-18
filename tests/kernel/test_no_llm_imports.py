@@ -31,7 +31,7 @@ def test_script_detects_forbidden_import(tmp_path: Path) -> None:
     fake_kernel.mkdir()
     (fake_kernel / "bad.py").write_text("import anthropic\n", encoding="utf-8")
 
-    # Copy the script and adjust KERNEL_DIR
+    # Run the scanner's scan_file directly against a synthetic bad file.
     import scripts.check_no_llm_imports as m
 
     bad_files = m.scan_file(fake_kernel / "bad.py")
