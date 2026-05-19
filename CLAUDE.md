@@ -75,6 +75,24 @@ geometry; never the reverse.** Week 1 builds the kernel side of that contract.
     JSON. This is the literal foundation of the audit trail and the eventual
     regulatory story. Every model gets a round-trip test, no exceptions.
 
+11. **Every kernel operation traces to a semantic object.** Every
+    `KernelOperation` the translator emits carries a non-empty `derived_from`
+    list of `SemanticObject` UUIDs. The translator must never emit an
+    operation with no semantic provenance. This is the audit-chain
+    invariant: every piece of the final helmet's geometry traces back to a
+    typed clinical decision. An operation with empty `derived_from` is a
+    bug, not an edge case.
+
+12. **Anchor resolution fails loudly, never silently degrades.** If a
+    semantic object references a landmark or region absent from the
+    patient's `LandmarkSet`, or its anchors are geometrically insufficient
+    to define the required region or curve, the synthesis layer raises a
+    specific, informative error and produces zero operations for that
+    object. It never guesses, never substitutes a template default, never
+    silently skips. Rationale: in week 6 the LLM produces these designs;
+    silent degradation would turn a clinically-wrong design into a
+    plausible-looking wrong helmet with no signal that anything went wrong.
+
 ---
 
 ## Package boundaries
@@ -88,13 +106,56 @@ geometry; never the reverse.** Week 1 builds the kernel side of that contract.
   `kernel/` types; it never redefines them.
 - `storage/` is **persistence only** — content-addressed blob store and the
   SQLite `CaseRepository`. It depends on `datamodel/`.
+- `synthesis/` is the **keystone layer** — resolves a `Design`'s anatomical
+  anchors against a patient's `ScanRecord`, translates semantic objects into
+  `KernelOperation`s, executes them through the kernel, and records the
+  audit chain. It imports from `datamodel/`, `kernel/`, and `anatomy/`.
 - **Dependency arrows point one way only:**
-  `storage → datamodel → {anatomy, kernel}`, and `anatomy → kernel`.
-  `kernel/` imports from none of the others. `anatomy/` imports `kernel/`
-  read-only and nothing above it. `kernel/` and `anatomy/` must **never**
-  import from `datamodel/` or `storage/`. Adapters that bridge layers live in
-  the higher layer, never retrofitted into the lower one. This keeps the
-  graph acyclic and the lower layers independently reusable.
+  `synthesis → {datamodel, kernel, anatomy}`, `storage → datamodel`,
+  `datamodel → {anatomy, kernel}`, `anatomy → kernel.validation`,
+  `kernel` standalone. **Nothing imports `synthesis/`.** `kernel/`,
+  `anatomy/`, `datamodel/`, and `storage/` must never import from
+  `synthesis/` (enforced by the pre-commit dependency-direction check).
+  Adapters that bridge layers live in the higher layer, never retrofitted
+  into the lower one. This keeps the graph acyclic and the lower layers
+  independently reusable.
+
+### Permitted below-the-line change (week 4 only)
+
+Week 1 explicitly deferred vent patterns, strap mounts, and per-region
+relief "until after boolean operations are battle-tested." Week 4 may add
+**new additive primitive functions/modules to `kernel/`** for: (a) vent
+cutter generation, (b) strap-mount feature generation, and (c) per-region
+inner-surface relief (the relief addition was explicitly authorized because
+Week 1's shell builder applies per-region corrections inward-only on the
+outer surface and has no relief knob). This is strictly additive:
+
+- New `kernel/` functions/modules + new tests under `tests/kernel/` only.
+- **No existing Week 1 kernel function may be modified.** Every Week 1
+  kernel test must pass unchanged.
+- `anatomy/`, `datamodel/`, `storage/` are untouched, full stop.
+
+### Executor phase contract (do not treat the executor as a generic op interpreter)
+
+`synthesis/executor.py` interprets a `KernelOperation` list by **phase**,
+driven by `op_type`, never one boolean at a time:
+
+1. **Shell phase** — collect *all* `offset_surface` ops (corrections and
+   relief) and feed them together into the existing Week 1 shell builder as
+   its per-region correction/relief set. Week 1 builds the corrected shell
+   from all per-region offsets at once; applying them as independent
+   booleans would reimplement Week 1 shell logic (forbidden).
+2. **Trim phase** — apply the single `trim_cut` op via the Week 1 trim
+   function.
+3. **Vent phase** — apply each `boolean_subtract` (vent) op sequentially,
+   canonicalizing the mesh after each boolean (Week 1's determinism fix).
+4. **Strap phase** — apply each `boolean_union` (strap) op sequentially,
+   canonicalizing after each.
+
+After all phases, validate with the existing Week 1 validators and capture
+each result as a `datamodel.Constraint`. A phase producing non-manifold or
+empty geometry raises `ExecutionError` naming the offending operation and
+semantic object id (invariant #6 still holds).
 
 ---
 
@@ -160,6 +221,10 @@ uv run python -m anatomy.annotate <scan.stl> --out landmarks.json
 # Data model + storage
 uv run pytest tests/datamodel tests/storage    # week-3 suites
 uv run python scripts/build_demo_case.py       # assemble + persist a full Case
+
+# Synthesis (semantic Design -> patient-specific helmet)
+uv run pytest tests/synthesis                  # week-4 suite
+uv run python scripts/build_helmet_from_design.py   # hand-authored Design -> helmet + audit chain
 ```
 
 ---
@@ -252,6 +317,26 @@ is deterministic. Still **not** building in week 3:
   prior tests pass unchanged. Adapters live in `datamodel/`.
 - ❌ No web API, UI, viewer, multi-user, auth, or concurrency control beyond
   SQLite defaults. No performance optimization — correctness over speed.
+
+### Week 4 out-of-scope (synthesis keystone only)
+
+Week 4 builds `synthesis/` (resolve → translate → execute) plus the
+permitted additive kernel vent/strap/relief primitives. The job is to carry
+a hand-authored `Design` to patient-specific geometry with a complete,
+deterministic audit chain. Still **not** building in week 4:
+
+- ❌ No LLM. No Anthropic SDK. Designs are hand-authored in the demo script
+  and tests. Clinical-narrative parsing is week 5; parameter proposal week 6.
+- ❌ No constraint propagation or repair loop. The executor *records*
+  constraint results; it never loops back to fix violations. The
+  propose→critique→revise loop is week 7.
+- ❌ No natural-language iteration / design modification — week 8.
+- ❌ No modification of any existing Week 1 kernel function, and no change
+  to any Week 2/3 (`anatomy/`, `datamodel/`, `storage/`) file. The only
+  below-the-line change is the additive vent/strap/relief kernel primitives.
+- ❌ No new third-party dependencies. No web API, UI, viewer. No
+  performance optimization — determinism + audit-chain correctness is the
+  whole job.
 
 ---
 

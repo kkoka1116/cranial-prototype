@@ -1,20 +1,22 @@
 # Pre-commit hooks. Install with `uv run pre-commit install`.
 #
-# The "no-llm-imports-in-kernel" hook enforces invariant #1 in CLAUDE.md:
-# the kernel produces geometry, the LLM produces parameters. It scans both
-# kernel/ and anatomy/ for forbidden imports — LLM SDKs, and (dependency-
-# direction rule) the higher layers datamodel/ and storage/. The lower
-# layers must never import the higher ones.
+# The no-forbidden-imports hook enforces invariant #1 (no LLM SDK in any
+# first-party package) and the dependency-direction rule (CLAUDE.md package
+# boundaries). It scans kernel/, anatomy/, datamodel/, storage/, synthesis/
+# with a per-layer forbidden set: arrows point one way only —
+# synthesis -> {datamodel, kernel, anatomy}, storage -> datamodel,
+# datamodel -> {anatomy, kernel}, anatomy -> kernel; nothing imports
+# synthesis; no layer imports an LLM SDK.
 
 repos:
   - repo: local
     hooks:
       - id: no-llm-imports-in-kernel
-        name: no LLM SDK imports under kernel/ or anatomy/
+        name: no LLM SDK / dependency-direction violations
         entry: uv run python scripts/check_no_llm_imports.py
         language: system
         types: [python]
-        files: ^(kernel|anatomy)/
+        files: ^(kernel|anatomy|datamodel|storage|synthesis)/
         pass_filenames: false
 
       - id: ruff
