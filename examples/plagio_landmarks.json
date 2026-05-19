@@ -1,0 +1,137 @@
+{
+  "frame": "canonical",
+  "landmarks": {
+    "glabella": {
+      "name": "glabella",
+      "position_mm": [
+        0.0,
+        82.42120586714512,
+        57.5
+      ],
+      "method": "derived",
+      "confidence": 1.0,
+      "notes": "derived from synthetic HeadConfig; snapped to generated mesh"
+    },
+    "nasion": {
+      "name": "nasion",
+      "position_mm": [
+        -0.00006121069064307649,
+        79.61476704549726,
+        42.64463126597178
+      ],
+      "method": "derived",
+      "confidence": 1.0,
+      "notes": "derived from synthetic HeadConfig; snapped to generated mesh"
+    },
+    "vertex": {
+      "name": "vertex",
+      "position_mm": [
+        -0.14552758842313052,
+        0.3833360632535645,
+        111.06556017993861
+      ],
+      "method": "derived",
+      "confidence": 1.0,
+      "notes": "derived from synthetic HeadConfig; snapped to generated mesh"
+    },
+    "opisthocranion": {
+      "name": "opisthocranion",
+      "position_mm": [
+        -0.626424080766302,
+        -75.57952350867834,
+        56.605402577542876
+      ],
+      "method": "derived",
+      "confidence": 1.0,
+      "notes": "derived from synthetic HeadConfig; snapped to generated mesh"
+    },
+    "tragion_left": {
+      "name": "tragion_left",
+      "position_mm": [
+        -49.128468075428025,
+        0.003272082239462959,
+        20.35481910345691
+      ],
+      "method": "derived",
+      "confidence": 1.0,
+      "notes": "derived from synthetic HeadConfig; snapped to generated mesh"
+    },
+    "tragion_right": {
+      "name": "tragion_right",
+      "position_mm": [
+        48.59032897393366,
+        0.03194963357223418,
+        20.837293223010025
+      ],
+      "method": "derived",
+      "confidence": 1.0,
+      "notes": "derived from synthetic HeadConfig; snapped to generated mesh"
+    },
+    "euryon_left": {
+      "name": "euryon_left",
+      "position_mm": [
+        -64.46007766781274,
+        0.000060503159986513566,
+        57.49997406786926
+      ],
+      "method": "derived",
+      "confidence": 1.0,
+      "notes": "derived from synthetic HeadConfig; snapped to generated mesh"
+    },
+    "euryon_right": {
+      "name": "euryon_right",
+      "position_mm": [
+        62.57938952492982,
+        0.13235738267139996,
+        57.43154211845541
+      ],
+      "method": "derived",
+      "confidence": 1.0,
+      "notes": "derived from synthetic HeadConfig; snapped to generated mesh"
+    },
+    "frontotemporale_left": {
+      "name": "frontotemporale_left",
+      "position_mm": [
+        -52.2642863230436,
+        46.50859221487163,
+        67.44125848382998
+      ],
+      "method": "derived",
+      "confidence": 1.0,
+      "notes": "derived from synthetic HeadConfig; snapped to generated mesh"
+    },
+    "frontotemporale_right": {
+      "name": "frontotemporale_right",
+      "position_mm": [
+        51.882875514793135,
+        46.31603655141825,
+        67.34051285368442
+      ],
+      "method": "derived",
+      "confidence": 1.0,
+      "notes": "derived from synthetic HeadConfig; snapped to generated mesh"
+    },
+    "parietal_eminence_left": {
+      "name": "parietal_eminence_left",
+      "position_mm": [
+        -45.64364763452275,
+        -18.582636321108346,
+        93.02361689175315
+      ],
+      "method": "derived",
+      "confidence": 1.0,
+      "notes": "derived from synthetic HeadConfig; snapped to generated mesh"
+    },
+    "parietal_eminence_right": {
+      "name": "parietal_eminence_right",
+      "position_mm": [
+        42.75511728913859,
+        -16.92251028263118,
+        89.82883073392361
+      ],
+      "method": "derived",
+      "confidence": 1.0,
+      "notes": "derived from synthetic HeadConfig; snapped to generated mesh"
+    }
+  }
+}

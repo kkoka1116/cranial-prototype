@@ -9,11 +9,11 @@ repos:
   - repo: local
     hooks:
       - id: no-llm-imports-in-kernel
-        name: no LLM SDK imports under kernel/
+        name: no LLM SDK imports under kernel/ or anatomy/
         entry: uv run python scripts/check_no_llm_imports.py
         language: system
         types: [python]
-        files: ^kernel/
+        files: ^(kernel|anatomy)/
         pass_filenames: false
 
       - id: ruff

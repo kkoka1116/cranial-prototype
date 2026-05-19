@@ -17,15 +17,18 @@ dependencies = [
     "trimesh==4.5.3",
     "manifold3d==2.5.1",
     "libigl==2.5.1",
-    "open3d==0.18.0",            # week 1: not used. Installed now per brief.
+    "open3d==0.18.0",            # mesh queries (used from week 2)
     # cadquery: brief lists it, but cadquery 2.4 pulls in nlopt with no
     # macOS-arm64 wheel. cadquery is unused in week 1 ("where it helps" per
     # brief). Adding it back belongs in week 4+ when B-rep parametric
     # construction actually enters the kernel.
     "pyyaml==6.0.2",
-    "scipy==1.13.1",             # used by trimesh for some ops; pin for determinism
+    "scipy==1.13.1",             # SVD rigid registration (week 2); trimesh ops; pin for determinism
     "networkx==3.3",             # used by trimesh; pin for determinism
     "rtree==1.3.0",              # trimesh proximity / closest_point queries
+    # --- week 2: anatomy package ---
+    "pyvista==0.44.2",           # interactive 3D viz + point picking (annotation tool; pulls VTK)
+    "pymeshfix==0.17.0",         # robust hole filling / non-manifold repair for raw scans
 ]
 
 [project.optional-dependencies]
