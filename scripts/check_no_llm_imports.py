@@ -20,14 +20,10 @@ import re
 import sys
 from pathlib import Path
 
-# Packages forbidden under kernel/ and anatomy/ (GUARDED_DIRS):
-#  - LLM SDKs (invariant #1: the kernel/anatomy layers contain no AI), and
-#  - the higher layers datamodel/ and storage/ (dependency-direction rule:
-#    arrows point storage -> datamodel -> {anatomy, kernel}; the lower
-#    layers must never import the higher ones — CLAUDE.md package
-#    boundaries).
-# Add to this list rather than weakening the regex.
-FORBIDDEN_PACKAGES = {
+# LLM SDKs — forbidden in EVERY first-party package (invariant #1: no AI in
+# the kernel/anatomy/datamodel/storage/synthesis layers; the LLM front door
+# is week 5+). Add to this list rather than weakening the regex.
+_LLM_SDKS = {
     "anthropic",
     "openai",
     "cohere",
@@ -37,9 +33,24 @@ FORBIDDEN_PACKAGES = {
     "instructor",
     "llama_index",
     "langchain",
-    "datamodel",
-    "storage",
 }
+
+# Dependency-direction rule (CLAUDE.md package boundaries). Arrows point one
+# way only: synthesis -> {datamodel, kernel, anatomy}, storage -> datamodel,
+# datamodel -> {anatomy, kernel}, anatomy -> kernel, kernel standalone.
+# A package may NOT import any package listed in its forbidden set.
+_LAYER_FORBIDDEN: dict[str, set[str]] = {
+    "kernel": _LLM_SDKS | {"anatomy", "datamodel", "storage", "synthesis"},
+    "anatomy": _LLM_SDKS | {"datamodel", "storage", "synthesis"},
+    "datamodel": _LLM_SDKS | {"storage", "synthesis"},
+    "storage": _LLM_SDKS | {"synthesis"},
+    "synthesis": set(_LLM_SDKS),
+}
+
+# Default set used by scan_file when no per-layer set is passed (and by the
+# unit tests): the broadest non-kernel rule — LLM SDKs plus every layer that
+# nothing below synthesis may import.
+FORBIDDEN_PACKAGES = _LLM_SDKS | {"datamodel", "storage", "synthesis"}
 
 # Catches:
 #   import X                         (and `import X as foo`)
@@ -60,17 +71,20 @@ _DYNAMIC_RE = re.compile(
 )
 
 _ROOT = Path(__file__).resolve().parent.parent
-# Both first-party packages are LLM-free: the kernel produces geometry, the
-# anatomy layer ingests scans. The LLM lives in a higher layer (week 5+).
-GUARDED_DIRS = (_ROOT / "kernel", _ROOT / "anatomy")
 
 
 def _module_root(name: str) -> str:
     return name.split(".", 1)[0]
 
 
-def scan_file(path: Path) -> list[tuple[int, str]]:
-    """Return list of (line_no, line) where forbidden imports appear."""
+def scan_file(path: Path, forbidden: set[str] | None = None) -> list[tuple[int, str]]:
+    """Return list of (line_no, line) where a forbidden import appears.
+
+    `forbidden` defaults to the broad FORBIDDEN_PACKAGES set; main() passes
+    the per-layer set so the dependency-direction rule is enforced
+    asymmetrically (e.g. storage MAY import datamodel but NOT synthesis).
+    """
+    forbidden = forbidden if forbidden is not None else FORBIDDEN_PACKAGES
     hits: list[tuple[int, str]] = []
     text = path.read_text(encoding="utf-8")
     lines = text.splitlines()
@@ -87,7 +101,7 @@ def scan_file(path: Path) -> list[tuple[int, str]]:
                     candidates.append(token)
         for module in candidates:
             root = _module_root(module)
-            if module in FORBIDDEN_PACKAGES or root in FORBIDDEN_PACKAGES:
+            if module in forbidden or root in forbidden:
                 line_no = text[: match.start()].count("\n") + 1
                 hits.append((line_no, lines[line_no - 1]))
                 break  # one hit per import line is enough
@@ -95,7 +109,7 @@ def scan_file(path: Path) -> list[tuple[int, str]]:
     for match in _DYNAMIC_RE.finditer(text):
         module = match.group("mod")
         root = _module_root(module)
-        if module in FORBIDDEN_PACKAGES or root in FORBIDDEN_PACKAGES:
+        if module in forbidden or root in forbidden:
             line_no = text[: match.start()].count("\n") + 1
             hits.append((line_no, lines[line_no - 1]))
 
@@ -104,22 +118,26 @@ def scan_file(path: Path) -> list[tuple[int, str]]:
 
 def main() -> int:
     bad: list[tuple[Path, int, str]] = []
-    for guarded in GUARDED_DIRS:
-        if not guarded.is_dir():
+    for pkg, forbidden in _LAYER_FORBIDDEN.items():
+        pkg_dir = _ROOT / pkg
+        if not pkg_dir.is_dir():
             continue
-        for py in sorted(guarded.rglob("*.py")):
-            for line_no, line in scan_file(py):
+        for py in sorted(pkg_dir.rglob("*.py")):
+            for line_no, line in scan_file(py, forbidden):
                 bad.append((py, line_no, line))
     if not bad:
         return 0
     sys.stderr.write(
-        "FORBIDDEN LLM IMPORT under kernel/ or anatomy/ (invariant #1, see CLAUDE.md):\n"
+        "FORBIDDEN IMPORT — LLM SDK or dependency-direction violation "
+        "(invariants #1/#11, CLAUDE.md package boundaries):\n"
     )
     for path, line_no, line in bad:
         sys.stderr.write(f"  {path}:{line_no}: {line.strip()}\n")
     sys.stderr.write(
-        "\nThe kernel and anatomy packages must not import LLM SDKs. If you "
-        "genuinely need this, it belongs in a higher layer (week 5+).\n"
+        "\nNo first-party package may import an LLM SDK, and the dependency "
+        "arrows point one way only: synthesis -> {datamodel, kernel, "
+        "anatomy}, storage -> datamodel, datamodel -> {anatomy, kernel}, "
+        "anatomy -> kernel. A lower layer must never import a higher one.\n"
     )
     return 1
 
