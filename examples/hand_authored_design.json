@@ -1,0 +1,417 @@
+{
+  "version": 1,
+  "semantic_objects": [
+    {
+      "id": "222ddbd5-3c2b-406e-8e22-9f7460103720",
+      "type": "correction_zone",
+      "anatomical_anchors": [
+        "opisthocranion",
+        "euryon_right"
+      ],
+      "region_ref": "opisthocranion",
+      "target_offset_mm": {
+        "value": 0.8,
+        "provenance": {
+          "source": "clinical_input",
+          "rationale": "remodel the right-posterior flattening; bounded so the corrected wall stays >= the 3 mm minimum",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657634",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "pressure_target_mmHg": {
+        "value": 12.0,
+        "provenance": {
+          "source": "clinical_input",
+          "rationale": "gentle, infant-safe remodeling pressure",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657661",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "schedule": {
+        "value": "progressive",
+        "provenance": {
+          "source": "template_default",
+          "rationale": "ramp pressure to improve tolerance",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657667",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "duration_weeks": {
+        "value": 12,
+        "provenance": {
+          "source": "clinical_input",
+          "rationale": "typical course for moderate plagiocephaly",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657672",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "transition_smoothing_mm": {
+        "value": 22.0,
+        "provenance": {
+          "source": "template_default",
+          "rationale": "smooth blend, no pressure ridge",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657677",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "falloff_function": {
+        "value": "gaussian",
+        "provenance": {
+          "source": "template_default",
+          "rationale": "smooth radial falloff",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657683",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      }
+    },
+    {
+      "id": "a589aba7-efea-492e-bf11-8ea16756f979",
+      "type": "relief_zone",
+      "anatomical_anchors": [
+        "glabella"
+      ],
+      "region_ref": "glabella",
+      "relief_offset_mm": {
+        "value": 2.0,
+        "provenance": {
+          "source": "clinical_input",
+          "rationale": "clearance over the contralateral frontal bossing",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657786",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "reason": {
+        "value": "do not press the prominent left forehead",
+        "provenance": {
+          "source": "clinical_input",
+          "rationale": "intake exam finding",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657793",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "transition_smoothing_mm": {
+        "value": 18.0,
+        "provenance": {
+          "source": "template_default",
+          "rationale": "smooth blend out of the relief",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657798",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      }
+    },
+    {
+      "id": "40f9ff6d-800d-44d5-9cc0-ff13e655804e",
+      "type": "trim_line",
+      "anatomical_anchors": [
+        "tragion_left",
+        "tragion_right"
+      ],
+      "landmark_path": [
+        "glabella",
+        "tragion_right",
+        "opisthocranion",
+        "tragion_left"
+      ],
+      "height_offsets_mm": {
+        "value": [
+          -8.0,
+          -12.0,
+          -10.0,
+          -12.0
+        ],
+        "provenance": {
+          "source": "template_default",
+          "rationale": "clear ears and brow per template",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657837",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "edge_treatment": {
+        "value": "rolled",
+        "provenance": {
+          "source": "template_default",
+          "rationale": "rolled edge for skin comfort",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657843",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "edge_thickness_mm": {
+        "value": 2.5,
+        "provenance": {
+          "source": "template_default",
+          "rationale": "manufacturable edge thickness",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657848",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      }
+    },
+    {
+      "id": "900de4b5-42d6-4094-a476-59763732cff7",
+      "type": "vent_region",
+      "anatomical_anchors": [
+        "vertex"
+      ],
+      "region_ref": "vertex",
+      "pattern": {
+        "value": "hex_lattice",
+        "provenance": {
+          "source": "template_default",
+          "rationale": "standard ventilation pattern",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657894",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "open_area_fraction": {
+        "value": 0.15,
+        "provenance": {
+          "source": "template_default",
+          "rationale": "ventilation vs structural integrity balance",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657899",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "feature_size_mm": {
+        "value": 6.0,
+        "provenance": {
+          "source": "template_default",
+          "rationale": "manufacturable hole size",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657904",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      }
+    },
+    {
+      "id": "70df2a4b-9a09-48b1-b96d-732386d6c7d7",
+      "type": "strap_mount",
+      "anatomical_anchors": [
+        "tragion_left"
+      ],
+      "position_ref": "tragion_left",
+      "strap_width_mm": {
+        "value": 20.0,
+        "provenance": {
+          "source": "template_default",
+          "rationale": "standard chin-strap width",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657966",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "angle_deg": {
+        "value": 35.0,
+        "provenance": {
+          "source": "template_default",
+          "rationale": "strap exit angle toward the chin",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657971",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      },
+      "reinforcement_radius_mm": {
+        "value": 8.0,
+        "provenance": {
+          "source": "template_default",
+          "rationale": "fillet to avoid a stress riser",
+          "agent_id": null,
+          "timestamp": "2026-05-19T19:59:46.657976",
+          "prior_value": null,
+          "confidence": 0.9
+        }
+      }
+    }
+  ],
+  "operations": [
+    {
+      "op_id": "41aa8219-900f-49c5-be18-8701a6f18338",
+      "op_type": "offset_surface",
+      "inputs": {
+        "center_mm": [
+          -0.10680903860035162,
+          -75.39286587012603,
+          56.032092564648266
+        ],
+        "radius_mm": 22.0,
+        "magnitude_mm": 0.8,
+        "signed_magnitude_mm": -0.8,
+        "direction": "inward",
+        "falloff": "gaussian"
+      },
+      "derived_from": [
+        "222ddbd5-3c2b-406e-8e22-9f7460103720"
+      ]
+    },
+    {
+      "op_id": "799ed4d8-8cd9-4fa4-b9bd-86d0fd62e282",
+      "op_type": "offset_surface",
+      "inputs": {
+        "center_mm": [
+          -0.10680903860035175,
+          82.61163784723463,
+          56.032092564648266
+        ],
+        "radius_mm": 18.0,
+        "magnitude_mm": 2.0,
+        "signed_magnitude_mm": 2.0,
+        "direction": "outward",
+        "falloff": "gaussian"
+      },
+      "derived_from": [
+        "a589aba7-efea-492e-bf11-8ea16756f979"
+      ]
+    },
+    {
+      "op_id": "7e852a29-984f-4f9f-b885-2bf0429d26de",
+      "op_type": "trim_cut",
+      "inputs": {
+        "path_points_mm": [
+          [
+            -0.10451919282175799,
+            81.803981283289,
+            48.220017263291474
+          ],
+          [
+            43.26190850077043,
+            0.3049734127731938,
+            14.591758892939033
+          ],
+          [
+            -0.11522527190688071,
+            -75.22882326419483,
+            46.05849116813713
+          ],
+          [
+            -43.194872236166695,
+            -0.06694242981046372,
+            14.126945967718168
+          ]
+        ],
+        "edge_treatment": "rolled",
+        "edge_thickness_mm": 2.5
+      },
+      "derived_from": [
+        "40f9ff6d-800d-44d5-9cc0-ff13e655804e"
+      ]
+    },
+    {
+      "op_id": "ae0c6403-c3c1-433b-af1a-114448ca94c8",
+      "op_type": "boolean_subtract",
+      "inputs": {
+        "center_mm": [
+          5.551115123125783e-17,
+          0.8784308085853354,
+          110.06147305930547
+        ],
+        "extent_mm": 18.0,
+        "pattern": "hex_lattice",
+        "open_area_fraction": 0.15,
+        "feature_size_mm": 6.0
+      },
+      "derived_from": [
+        "900de4b5-42d6-4094-a476-59763732cff7"
+      ]
+    },
+    {
+      "op_id": "fbcc9aa6-0a6f-43b6-a7e9-26338ad32aad",
+      "op_type": "boolean_union",
+      "inputs": {
+        "anchor_mm": [
+          -48.858589207665354,
+          -0.20941207430598432,
+          19.289416166634012
+        ],
+        "strap_width_mm": 20.0,
+        "angle_deg": 35.0,
+        "reinforcement_radius_mm": 8.0
+      },
+      "derived_from": [
+        "70df2a4b-9a09-48b1-b96d-732386d6c7d7"
+      ]
+    }
+  ],
+  "output_artifacts": {
+    "helmet_stl": "sha256:d63309b375fd7e078f2c7443b096d8059563458e498cb9cc85b594e7ca4ef3aa",
+    "registered_scan_stl": "sha256:163408436e0ccb603823a9239beb25518f7b3be7fe190d4b292ec3a4cbfc5a66"
+  },
+  "constraints_checked": [
+    {
+      "name": "manifold",
+      "domain": "manufacturing",
+      "expression": "mesh is manifold",
+      "satisfied": true,
+      "actual_value": 1.0,
+      "limit_value": 1.0,
+      "severity": "error"
+    },
+    {
+      "name": "watertight",
+      "domain": "manufacturing",
+      "expression": "mesh is watertight",
+      "satisfied": true,
+      "actual_value": 1.0,
+      "limit_value": 1.0,
+      "severity": "error"
+    },
+    {
+      "name": "min_wall_thickness_mm",
+      "domain": "manufacturing",
+      "expression": "min wall thickness 3.20 mm (>= limit 3.00 mm)",
+      "satisfied": true,
+      "actual_value": 3.201042142248985,
+      "limit_value": 3.0,
+      "severity": "error"
+    },
+    {
+      "name": "mass_g",
+      "domain": "biomechanical",
+      "expression": "estimated mass 222.9 g (<= limit 250.0 g)",
+      "satisfied": true,
+      "actual_value": 222.86666758927765,
+      "limit_value": 250.0,
+      "severity": "error"
+    },
+    {
+      "name": "bbox_max_extent_mm",
+      "domain": "manufacturing",
+      "expression": "max bbox extent 171.7 mm (<= limit 250.0 mm) [extents = 141.3 x 171.7 x 124.9]",
+      "satisfied": true,
+      "actual_value": 171.66634368896484,
+      "limit_value": 250.0,
+      "severity": "error"
+    }
+  ],
+  "created_at": "2026-05-19T19:59:46.660006",
+  "parent_version": null,
+  "change_summary": "hand-authored plagiocephaly design (stands in for the week-6 LLM)"
+}
