@@ -20,8 +20,13 @@ import re
 import sys
 from pathlib import Path
 
-# Packages we forbid. Keep this list narrow but exhaustive for current
-# LLM SDKs. Add to this list rather than weakening the regex.
+# Packages forbidden under kernel/ and anatomy/ (GUARDED_DIRS):
+#  - LLM SDKs (invariant #1: the kernel/anatomy layers contain no AI), and
+#  - the higher layers datamodel/ and storage/ (dependency-direction rule:
+#    arrows point storage -> datamodel -> {anatomy, kernel}; the lower
+#    layers must never import the higher ones — CLAUDE.md package
+#    boundaries).
+# Add to this list rather than weakening the regex.
 FORBIDDEN_PACKAGES = {
     "anthropic",
     "openai",
@@ -32,6 +37,8 @@ FORBIDDEN_PACKAGES = {
     "instructor",
     "llama_index",
     "langchain",
+    "datamodel",
+    "storage",
 }
 
 # Catches:
