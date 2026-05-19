@@ -61,6 +61,20 @@ geometry; never the reverse.** Week 1 builds the kernel side of that contract.
    guarantees that landmarks survive mesh transformations and remain on the
    patient surface.
 
+9. **The Case is the single source of truth.** Every artifact the system
+   produces — a mesh, a measurement, a design version, an audit event — is
+   either stored inside the `Case` object or content-addressed by hash and
+   referenced from the `Case`. Nothing the system produces lives outside a
+   `Case`. If you find yourself writing a file to disk that isn't either a
+   content-addressed blob or part of a serialized `Case`, stop.
+
+10. **Serialization is lossless and deterministic.** A `Case` round-trips
+    through JSON with zero information loss:
+    `Case.model_validate_json(case.model_dump_json())` equals the original in
+    every field. Serializing the same `Case` twice produces byte-identical
+    JSON. This is the literal foundation of the audit trail and the eventual
+    regulatory story. Every model gets a round-trip test, no exceptions.
+
 ---
 
 ## Package boundaries
@@ -69,14 +83,18 @@ geometry; never the reverse.** Week 1 builds the kernel side of that contract.
   STL export, CLI. No scan ingestion, no anatomical analysis.
 - `anatomy/` does **scan ingestion and anatomical analysis only** — load,
   cleanup, landmarks, registration, measurements, annotation.
-- The two packages communicate only through well-typed function signatures
-  and **do not share state**.
-- `anatomy/` **may import from `kernel/`** read-only (e.g.
-  `kernel.validation.topology` for manifold/watertight checks,
-  `kernel.config.HeadConfig` and `kernel.primitives` for synthetic-head
-  ground-truth derivation). `kernel/` **must never import from `anatomy/`**.
-  This asymmetry is intentional: the kernel is the lower layer; anatomy
-  depends on the kernel's notion of valid geometry, never the reverse.
+- `datamodel/` is the **top compositional layer** — `Case`, `Design`,
+  provenance/audit/clinical/semantic types. It composes `anatomy/` and
+  `kernel/` types; it never redefines them.
+- `storage/` is **persistence only** — content-addressed blob store and the
+  SQLite `CaseRepository`. It depends on `datamodel/`.
+- **Dependency arrows point one way only:**
+  `storage → datamodel → {anatomy, kernel}`, and `anatomy → kernel`.
+  `kernel/` imports from none of the others. `anatomy/` imports `kernel/`
+  read-only and nothing above it. `kernel/` and `anatomy/` must **never**
+  import from `datamodel/` or `storage/`. Adapters that bridge layers live in
+  the higher layer, never retrofitted into the lower one. This keeps the
+  graph acyclic and the lower layers independently reusable.
 
 ---
 
@@ -88,14 +106,23 @@ geometry; never the reverse.** Week 1 builds the kernel side of that contract.
 - `manifold3d` 2.5 — boolean operations on meshes
 - `trimesh` 4.5 — primary mesh data type and I/O
 - `libigl` 2.5 — mesh distance queries (wall-thickness analysis)
-- `open3d` 0.18 — mesh queries (used from week 2)
+- `open3d` 0.18 — installed; pinned for determinism. Not yet used in code
+  (reserved for future mesh-query work).
 - `pyvista` 0.44+ — interactive 3D mesh visualization + point picking
   (week-2 annotation tool; pulls in VTK transitively)
 - `pymeshfix` 0.17+ — robust hole filling / non-manifold repair for raw scans
-- `scipy` 1.13 — SVD-based rigid registration (pinned explicitly from week 2)
-- `pydantic` v2 — typed configuration
+- `scipy` 1.13 — pinned for determinism (transitive dep of trimesh).
+  Not directly used: week-2 registration is a hand-rolled cross-product
+  orthonormal basis, not an SVD.
+- `pydantic` v2 — typed configuration; week-3 also uses generic models
+  (`TracedValue[T]`) and discriminated unions
+- `sqlite3` — Python standard library; the week-3 case database. No ORM,
+  no migrations framework — by design (see Prototype data lifecycle).
 - `pytest` + `pytest-cov` — tests
 - `ruff` — linting and formatting
+
+Week 3 adds **no new third-party dependencies** — storage uses stdlib
+`sqlite3` only.
 
 Determinism note: every numerical / mesh library above is **pinned to an exact
 version**. The golden STL hashes in `tests/fixtures/golden/` are valid only for
@@ -129,7 +156,23 @@ uv run python -m kernel.generate --config examples/baseline.yaml --out /tmp/helm
 
 # Annotate a scan with the twelve cranial landmarks (interactive PyVista)
 uv run python -m anatomy.annotate <scan.stl> --out landmarks.json
+
+# Data model + storage
+uv run pytest tests/datamodel tests/storage    # week-3 suites
+uv run python scripts/build_demo_case.py       # assemble + persist a full Case
 ```
+
+---
+
+## Prototype data lifecycle
+
+There is **no migrations framework, by design**. During the prototype,
+schema changes are handled by deleting the dev SQLite database and the blob
+directory and rebuilding from `scripts/build_demo_case.py`. SQLite stores
+each `Case` as serialized Pydantic JSON in one column plus metadata columns
+for indexing; meshes live as content-addressed blobs on disk, referenced by
+`sha256:` hash from the `Case`. Do not add an ORM or Alembic — an ORM would
+muddy the determinism story and a prototype does not need migrations.
 
 ---
 
@@ -189,6 +232,26 @@ Still **not** building in week 2:
 - ❌ No DICOM / CT / MRI import. 3D scan formats (STL/PLY/OBJ) only.
 - ❌ No mobile/photo capture, no multi-scan time-series, no real patient
   data, no web API/frontend beyond the annotation tool.
+
+### Week 3 out-of-scope (data model + persistence only)
+
+Week 3 builds `datamodel/` (Case, Design, provenance/audit/clinical/semantic
+types) and `storage/` (content-addressed blobs + SQLite `CaseRepository`).
+The job is: define the types, persist them losslessly, prove the round-trip
+is deterministic. Still **not** building in week 3:
+
+- ❌ No LLM. No Anthropic SDK, no narrative parsing, no parameter proposal.
+  `clinical_narrative` is an inert string; semantic objects are hand-authored.
+- ❌ No semantic→kernel translation. `KernelOperation` is a data type only;
+  the `CorrectionZone`→`offset_surface` translator is week 4.
+- ❌ No constraint propagation engine. `Constraint` is a data type; recording
+  a Week-1 validator result as a `Constraint` is recording, not propagation.
+- ❌ No ORM, no migrations framework, no Alembic — **ever**, in the
+  prototype. Schema changes = delete the dev DB + blob dir and rebuild.
+- ❌ No refactor of `kernel/` or `anatomy/` internals. Additive only; all
+  prior tests pass unchanged. Adapters live in `datamodel/`.
+- ❌ No web API, UI, viewer, multi-user, auth, or concurrency control beyond
+  SQLite defaults. No performance optimization — correctness over speed.
 
 ---
 

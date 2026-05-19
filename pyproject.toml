@@ -74,7 +74,11 @@ ignore = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-ra -q --strict-markers"
+# importlib import-mode lets test modules in different packages share a
+# basename (tests/kernel/test_determinism.py and
+# tests/storage/test_determinism.py) without __init__.py files — needed
+# because week 3 must not add files under the week-1/2 test dirs.
+addopts = "-ra -q --strict-markers --import-mode=importlib"
 pythonpath = ["."]
 
 [tool.coverage.run]

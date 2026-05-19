@@ -1,9 +1,10 @@
 # Pre-commit hooks. Install with `uv run pre-commit install`.
 #
 # The "no-llm-imports-in-kernel" hook enforces invariant #1 in CLAUDE.md:
-# the kernel produces geometry, the LLM produces parameters — there is no
-# LLM call under kernel/. The hook is intentionally narrow: it only scans
-# kernel/, not other directories.
+# the kernel produces geometry, the LLM produces parameters. It scans both
+# kernel/ and anatomy/ for forbidden imports — LLM SDKs, and (dependency-
+# direction rule) the higher layers datamodel/ and storage/. The lower
+# layers must never import the higher ones.
 
 repos:
   - repo: local
