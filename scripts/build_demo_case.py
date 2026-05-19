@@ -10,6 +10,7 @@ Run: uv run python scripts/build_demo_case.py
 
 from __future__ import annotations
 
+import argparse
 import sys
 import tempfile
 from pathlib import Path
@@ -289,7 +290,25 @@ def _summary(case: Case) -> str:
     return "\n".join(lines)
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="build_demo_case",
+        description="Assemble + persist + round-trip a full demo Case (no LLM).",
+    )
+    parser.add_argument(
+        "--write",
+        "-w",
+        action="store_true",
+        help=(
+            "Overwrite the committed examples/demo_case.json. Off by default: "
+            "a normal run proves the round-trip into a temp dir and does NOT "
+            "dirty the working tree (case_id/timestamps are non-deterministic "
+            "by design, so re-writing the committed artifact every run would "
+            "create a spurious git diff)."
+        ),
+    )
+    args = parser.parse_args(argv)
+
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
         repo = CaseRepository(tmp_path / "cases.db", tmp_path / "blobs")
@@ -305,13 +324,17 @@ def main() -> int:
         # Determinism: re-serialize the reloaded case identically.
         assert case.model_dump_json() == reloaded.model_dump_json()
 
-        EXAMPLES.mkdir(exist_ok=True)
-        (EXAMPLES / "demo_case.json").write_text(
-            reloaded.model_dump_json(indent=2), encoding="utf-8"
-        )
+        payload = reloaded.model_dump_json(indent=2)
+        if args.write:
+            EXAMPLES.mkdir(exist_ok=True)
+            (EXAMPLES / "demo_case.json").write_text(payload, encoding="utf-8")
+            dest = "examples/demo_case.json"
+        else:
+            (tmp_path / "demo_case.json").write_text(payload, encoding="utf-8")
+            dest = "(temp; pass --write to refresh examples/demo_case.json)"
 
         sys.stdout.write(_summary(reloaded) + "\n")
-        sys.stdout.write("deep-equality OK | deterministic OK | wrote examples/demo_case.json\n")
+        sys.stdout.write(f"deep-equality OK | deterministic OK | wrote {dest}\n")
     return 0
 
 
