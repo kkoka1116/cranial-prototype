@@ -1,0 +1,657 @@
+{
+  "case_id": "30c35b91-7d9d-425d-a4d4-6d3c764006c7",
+  "device_class": "cranial_helmet",
+  "clinical_narrative": "7-month-old presenting with right posterior positional plagiocephaly and mild contralateral frontal bossing. Referred for a cranial remolding helmet. No torticollis. Parents counseled on repositioning and helmet therapy.",
+  "clinical_record": {
+    "device_class": "cranial_helmet",
+    "patient_age_months": {
+      "value": 7,
+      "provenance": {
+        "source": "clinical_input",
+        "rationale": "age at intake from referral form; drives expected treatment duration",
+        "agent_id": null,
+        "timestamp": "2026-05-19T02:52:23.626290",
+        "prior_value": null,
+        "confidence": 0.95
+      }
+    },
+    "notes": null,
+    "provenance": {
+      "source": "clinical_input",
+      "rationale": "clinical record authored from intake exam and the registered scan",
+      "agent_id": null,
+      "timestamp": "2026-05-19T02:52:23.626303",
+      "prior_value": null,
+      "confidence": null
+    },
+    "diagnosis": {
+      "value": "positional_plagiocephaly",
+      "provenance": {
+        "source": "clinical_input",
+        "rationale": "right posterior flattening with contralateral frontal bossing on exam",
+        "agent_id": null,
+        "timestamp": "2026-05-19T02:52:23.626306",
+        "prior_value": null,
+        "confidence": 0.95
+      }
+    },
+    "cvai": {
+      "value": 7.58,
+      "provenance": {
+        "source": "kernel_derivation",
+        "rationale": "CVAI measured from the registered scan (7.58%)",
+        "agent_id": null,
+        "timestamp": "2026-05-19T02:52:23.626311",
+        "prior_value": null,
+        "confidence": 0.9
+      }
+    },
+    "cephalic_index": {
+      "value": 80.4,
+      "provenance": {
+        "source": "kernel_derivation",
+        "rationale": "cephalic index measured from the registered scan (80.4)",
+        "agent_id": null,
+        "timestamp": "2026-05-19T02:52:23.626314",
+        "prior_value": null,
+        "confidence": 0.9
+      }
+    },
+    "severity": {
+      "value": "moderate",
+      "provenance": {
+        "source": "clinical_input",
+        "rationale": "CVAI in the 7-9 band is clinically moderate plagiocephaly",
+        "agent_id": null,
+        "timestamp": "2026-05-19T02:52:23.626316",
+        "prior_value": null,
+        "confidence": 0.95
+      }
+    },
+    "laterality": {
+      "value": "right",
+      "provenance": {
+        "source": "clinical_input",
+        "rationale": "flattening is right-posterior",
+        "agent_id": null,
+        "timestamp": "2026-05-19T02:52:23.626318",
+        "prior_value": null,
+        "confidence": 0.95
+      }
+    },
+    "target_duration_weeks": {
+      "value": 12,
+      "provenance": {
+        "source": "clinical_input",
+        "rationale": "typical course for moderate plagiocephaly at this age",
+        "agent_id": null,
+        "timestamp": "2026-05-19T02:52:23.626320",
+        "prior_value": null,
+        "confidence": 0.95
+      }
+    },
+    "asymmetry_pattern": {
+      "value": "right occipital flattening, left frontal bossing",
+      "provenance": {
+        "source": "clinical_input",
+        "rationale": "documented asymmetry pattern from exam",
+        "agent_id": null,
+        "timestamp": "2026-05-19T02:52:23.626323",
+        "prior_value": null,
+        "confidence": 0.95
+      }
+    },
+    "contraindications": []
+  },
+  "scan_record": {
+    "mesh_hash": "sha256:163408436e0ccb603823a9239beb25518f7b3be7fe190d4b292ec3a4cbfc5a66",
+    "source_filename": "synthetic_moderate_right_plagio.stl",
+    "landmark_set": {
+      "frame": "canonical",
+      "landmarks": {
+        "glabella": {
+          "name": "glabella",
+          "position_mm": [
+            -0.10680903860035175,
+            82.61163784723463,
+            56.032092564648266
+          ],
+          "method": "manual",
+          "confidence": 1.0,
+          "notes": ""
+        },
+        "nasion": {
+          "name": "nasion",
+          "position_mm": [
+            -0.07571696888328514,
+            79.72115698784776,
+            41.19287989105735
+          ],
+          "method": "manual",
+          "confidence": 1.0,
+          "notes": ""
+        },
+        "vertex": {
+          "name": "vertex",
+          "position_mm": [
+            5.551115123125783e-17,
+            0.8784308085853354,
+            110.06147305930547
+          ],
+          "method": "manual",
+          "confidence": 1.0,
+          "notes": ""
+        },
+        "opisthocranion": {
+          "name": "opisthocranion",
+          "position_mm": [
+            -0.10680903860035162,
+            -75.39286587012603,
+            56.032092564648266
+          ],
+          "method": "manual",
+          "confidence": 1.0,
+          "notes": ""
+        },
+        "tragion_left": {
+          "name": "tragion_left",
+          "position_mm": [
+            -48.858589207665354,
+            -0.20941207430598432,
+            19.289416166634012
+          ],
+          "method": "manual",
+          "confidence": 1.0,
+          "notes": ""
+        },
+        "tragion_right": {
+          "name": "tragion_right",
+          "position_mm": [
+            48.858589207665354,
+            0.20941207430598419,
+            19.90140418227908
+          ],
+          "method": "manual",
+          "confidence": 1.0,
+          "notes": ""
+        },
+        "euryon_left": {
+          "name": "euryon_left",
+          "position_mm": [
+            -64.24018158185983,
+            -0.06309701327009562,
+            56.4136132390932
+          ],
+          "method": "manual",
+          "confidence": 1.0,
+          "notes": ""
+        },
+        "euryon_right": {
+          "name": "euryon_right",
+          "position_mm": [
+            62.79774417931765,
+            0.5724694643049998,
+            56.51302934485757
+          ],
+          "method": "manual",
+          "confidence": 1.0,
+          "notes": ""
+        },
+        "frontotemporale_left": {
+          "name": "frontotemporale_left",
+          "position_mm": [
+            -52.24194811824007,
+            46.548961150719045,
+            66.10734378067657
+          ],
+          "method": "manual",
+          "confidence": 1.0,
+          "notes": ""
+        },
+        "frontotemporale_right": {
+          "name": "frontotemporale_right",
+          "position_mm": [
+            51.90520141492959,
+            46.76874113957729,
+            66.14590690002406
+          ],
+          "method": "manual",
+          "confidence": 1.0,
+          "notes": ""
+        },
+        "parietal_eminence_left": {
+          "name": "parietal_eminence_left",
+          "position_mm": [
+            -45.398325144433564,
+            -18.36962093985954,
+            92.06693689420106
+          ],
+          "method": "manual",
+          "confidence": 1.0,
+          "notes": ""
+        },
+        "parietal_eminence_right": {
+          "name": "parietal_eminence_right",
+          "position_mm": [
+            42.99740960300674,
+            -16.377157528218934,
+            88.98011245797606
+          ],
+          "method": "manual",
+          "confidence": 1.0,
+          "notes": ""
+        }
+      }
+    },
+    "measurements": [
+      {
+        "name": "head_length",
+        "value": 158.00450371736065,
+        "unit": "mm",
+        "inputs_used": [
+          "glabella",
+          "opisthocranion"
+        ],
+        "quality": "high",
+        "notes": "straight inter-landmark AP distance"
+      },
+      {
+        "name": "head_width",
+        "value": 127.03955450965633,
+        "unit": "mm",
+        "inputs_used": [
+          "euryon_left",
+          "euryon_right"
+        ],
+        "quality": "high",
+        "notes": "straight inter-landmark ML distance"
+      },
+      {
+        "name": "head_height",
+        "value": 90.46606288484892,
+        "unit": "mm",
+        "inputs_used": [
+          "vertex",
+          "tragion_left",
+          "tragion_right"
+        ],
+        "quality": "high",
+        "notes": "vertex.z minus mean tragion z (canonical frame)"
+      },
+      {
+        "name": "cephalic_index",
+        "value": 80.4024894992268,
+        "unit": "index",
+        "inputs_used": [
+          "euryon_left",
+          "euryon_right",
+          "glabella",
+          "opisthocranion"
+        ],
+        "quality": "high",
+        "notes": "width 127.04 / length 158.00 * 100"
+      },
+      {
+        "name": "cvai",
+        "value": 7.577547653818561,
+        "unit": "percent",
+        "inputs_used": [
+          "glabella",
+          "opisthocranion",
+          "tragion_left",
+          "tragion_right",
+          "mesh"
+        ],
+        "quality": "high",
+        "notes": "peak at z=96.7 mm: diag(+30°)=90.17 mm, diag(-30°)=97.57 mm"
+      },
+      {
+        "name": "head_circumference",
+        "value": 448.5663549089045,
+        "unit": "mm",
+        "inputs_used": [
+          "glabella",
+          "mesh"
+        ],
+        "quality": "high",
+        "notes": "max-perimeter slice at z=56.0 mm"
+      }
+    ],
+    "cleanup_report": {
+      "was_already_manifold": true,
+      "duplicate_vertices_merged": 0,
+      "degenerate_faces_removed": 0,
+      "holes_filled": 0,
+      "faces_removed": 0,
+      "faces_added": 0,
+      "normals_flipped": false,
+      "notes": "v 10242->10242, f 20480->20480"
+    },
+    "registered_transform": [
+      [
+        0.9999912603256467,
+        -0.003957015254137573,
+        -0.001349556446873023,
+        0.2969324259755536
+      ],
+      [
+        0.00396459636294199,
+        0.9999761124433268,
+        0.005661847614529935,
+        -0.1331554165197396
+      ],
+      [
+        0.0013271201918896173,
+        -0.005667148578406404,
+        0.9999830609460276,
+        -0.9998402200877893
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "design_versions": [
+    {
+      "version": 1,
+      "semantic_objects": [
+        {
+          "id": "7ba680a8-d268-4848-850e-78de0f60b7ff",
+          "type": "correction_zone",
+          "anatomical_anchors": [
+            "opisthocranion",
+            "euryon_right"
+          ],
+          "region_ref": "right_posterior_quadrant",
+          "target_offset_mm": {
+            "value": 6.0,
+            "provenance": {
+              "source": "template_default",
+              "rationale": "offset sized to the measured right-posterior deficit",
+              "agent_id": null,
+              "timestamp": "2026-05-19T02:52:24.355467",
+              "prior_value": null,
+              "confidence": 0.8
+            }
+          },
+          "pressure_target_mmHg": {
+            "value": 12.0,
+            "provenance": {
+              "source": "template_default",
+              "rationale": "gentle remodeling pressure for an infant",
+              "agent_id": null,
+              "timestamp": "2026-05-19T02:52:24.355477",
+              "prior_value": null,
+              "confidence": 0.8
+            }
+          },
+          "schedule": {
+            "value": "progressive",
+            "provenance": {
+              "source": "template_default",
+              "rationale": "ramp pressure to improve tolerance",
+              "agent_id": null,
+              "timestamp": "2026-05-19T02:52:24.355480",
+              "prior_value": null,
+              "confidence": 0.8
+            }
+          },
+          "duration_weeks": {
+            "value": 12,
+            "provenance": {
+              "source": "template_default",
+              "rationale": "matches the clinical target duration",
+              "agent_id": null,
+              "timestamp": "2026-05-19T02:52:24.355481",
+              "prior_value": null,
+              "confidence": 0.8
+            }
+          },
+          "transition_smoothing_mm": {
+            "value": 8.0,
+            "provenance": {
+              "source": "template_default",
+              "rationale": "smooth blend to avoid a pressure ridge",
+              "agent_id": null,
+              "timestamp": "2026-05-19T02:52:24.355483",
+              "prior_value": null,
+              "confidence": 0.8
+            }
+          },
+          "falloff_function": {
+            "value": "gaussian",
+            "provenance": {
+              "source": "template_default",
+              "rationale": "smooth radial falloff",
+              "agent_id": null,
+              "timestamp": "2026-05-19T02:52:24.355485",
+              "prior_value": null,
+              "confidence": 0.8
+            }
+          }
+        },
+        {
+          "id": "9a186541-b08c-48a3-a4ba-d912fb602a15",
+          "type": "relief_zone",
+          "anatomical_anchors": [
+            "vertex"
+          ],
+          "region_ref": "sagittal_crest",
+          "relief_offset_mm": {
+            "value": 3.0,
+            "provenance": {
+              "source": "template_default",
+              "rationale": "clearance over the sagittal suture",
+              "agent_id": null,
+              "timestamp": "2026-05-19T02:52:24.355520",
+              "prior_value": null,
+              "confidence": 0.8
+            }
+          },
+          "reason": {
+            "value": "avoid pressure over the suture line",
+            "provenance": {
+              "source": "template_default",
+              "rationale": "standard relief practice",
+              "agent_id": null,
+              "timestamp": "2026-05-19T02:52:24.355522",
+              "prior_value": null,
+              "confidence": 0.8
+            }
+          },
+          "transition_smoothing_mm": {
+            "value": 5.0,
+            "provenance": {
+              "source": "template_default",
+              "rationale": "smooth blend out of the relief",
+              "agent_id": null,
+              "timestamp": "2026-05-19T02:52:24.355524",
+              "prior_value": null,
+              "confidence": 0.8
+            }
+          }
+        },
+        {
+          "id": "d3e4d0d1-4574-484e-b1aa-0104918641f3",
+          "type": "trim_line",
+          "anatomical_anchors": [
+            "tragion_left",
+            "tragion_right"
+          ],
+          "landmark_path": [
+            "glabella",
+            "tragion_right",
+            "opisthocranion",
+            "tragion_left"
+          ],
+          "height_offsets_mm": {
+            "value": [
+              2.0,
+              -1.5,
+              -3.0,
+              -1.5
+            ],
+            "provenance": {
+              "source": "template_default",
+              "rationale": "trim clears the ears and brow per template",
+              "agent_id": null,
+              "timestamp": "2026-05-19T02:52:24.355539",
+              "prior_value": null,
+              "confidence": 0.8
+            }
+          },
+          "edge_treatment": {
+            "value": "rolled",
+            "provenance": {
+              "source": "template_default",
+              "rationale": "rolled edge for skin comfort",
+              "agent_id": null,
+              "timestamp": "2026-05-19T02:52:24.355541",
+              "prior_value": null,
+              "confidence": 0.8
+            }
+          },
+          "edge_thickness_mm": {
+            "value": 2.5,
+            "provenance": {
+              "source": "template_default",
+              "rationale": "manufacturable edge thickness",
+              "agent_id": null,
+              "timestamp": "2026-05-19T02:52:24.355543",
+              "prior_value": null,
+              "confidence": 0.8
+            }
+          }
+        }
+      ],
+      "operations": [
+        {
+          "op_id": "3a97b753-0d6f-4d01-a612-35d68b61c856",
+          "op_type": "generate_test_head",
+          "inputs": {
+            "config": "moderate_right_plagio"
+          },
+          "derived_from": []
+        },
+        {
+          "op_id": "e85a2815-67f7-4444-817b-6115bf63fdc1",
+          "op_type": "build_shell",
+          "inputs": {
+            "wall_thickness_mm": 4.5
+          },
+          "derived_from": []
+        },
+        {
+          "op_id": "b21a1220-5429-4719-8ed6-0359347d05f8",
+          "op_type": "apply_trim",
+          "inputs": {
+            "trim": "moderate_right_plagio"
+          },
+          "derived_from": []
+        }
+      ],
+      "output_artifacts": {
+        "helmet_stl": "sha256:efb3fc4bb686a33e475c3257a52324e727ba1b79c8059ad9056e70755ad334dd",
+        "registered_scan_stl": "sha256:163408436e0ccb603823a9239beb25518f7b3be7fe190d4b292ec3a4cbfc5a66"
+      },
+      "constraints_checked": [
+        {
+          "name": "manifold",
+          "domain": "biomechanical",
+          "expression": "mesh is manifold",
+          "satisfied": true,
+          "actual_value": 1.0,
+          "limit_value": 1.0,
+          "severity": "error"
+        },
+        {
+          "name": "watertight",
+          "domain": "biomechanical",
+          "expression": "mesh is watertight",
+          "satisfied": true,
+          "actual_value": 1.0,
+          "limit_value": 1.0,
+          "severity": "error"
+        },
+        {
+          "name": "min_wall_thickness_mm",
+          "domain": "manufacturing",
+          "expression": "min wall thickness 3.12 mm (>= limit 3.00 mm)",
+          "satisfied": true,
+          "actual_value": 3.119767947412992,
+          "limit_value": 3.0,
+          "severity": "error"
+        },
+        {
+          "name": "mass_g",
+          "domain": "biomechanical",
+          "expression": "estimated mass 219.4 g (<= limit 250.0 g)",
+          "satisfied": true,
+          "actual_value": 219.37749876751136,
+          "limit_value": 250.0,
+          "severity": "error"
+        },
+        {
+          "name": "bbox_max_extent_mm",
+          "domain": "biomechanical",
+          "expression": "max bbox extent 172.6 mm (<= limit 250.0 mm) [extents = 141.8 x 172.6 x 125.8]",
+          "satisfied": true,
+          "actual_value": 172.6210708618164,
+          "limit_value": 250.0,
+          "severity": "error"
+        }
+      ],
+      "created_at": "2026-05-19T02:52:24.355677",
+      "parent_version": null,
+      "change_summary": "initial hand-authored design (stands in for week-6 LLM proposal)"
+    }
+  ],
+  "audit_events": [
+    {
+      "event_id": "98003478-9f21-429f-becb-b7b3de056e33",
+      "timestamp": "2026-05-19T02:52:24.355705",
+      "actor": "system",
+      "action": "scan_ingested",
+      "target_id": "30c35b91-7d9d-425d-a4d4-6d3c764006c7",
+      "payload": {},
+      "rationale": "synthetic plagiocephaly scan cleaned, registered, measured"
+    },
+    {
+      "event_id": "b1b1d22c-16d6-4dfb-9a0e-98ac9c43c0a6",
+      "timestamp": "2026-05-19T02:52:24.355742",
+      "actor": "clinician",
+      "action": "clinical_record_authored",
+      "target_id": "30c35b91-7d9d-425d-a4d4-6d3c764006c7",
+      "payload": {},
+      "rationale": "diagnosis and targets entered from intake exam"
+    },
+    {
+      "event_id": "54d78185-6fa5-46e4-84b6-77786d5cb5c0",
+      "timestamp": "2026-05-19T02:52:24.355761",
+      "actor": "system",
+      "action": "add_design_version",
+      "target_id": "30c35b91-7d9d-425d-a4d4-6d3c764006c7",
+      "payload": {
+        "version": 1,
+        "parent_version": null
+      },
+      "rationale": "initial hand-authored design (stands in for week-6 LLM proposal)"
+    },
+    {
+      "event_id": "50927f38-7119-4067-9bf8-c31f9b3e89f2",
+      "timestamp": "2026-05-19T02:52:24.355768",
+      "actor": "kernel",
+      "action": "helmet_generated",
+      "target_id": "30c35b91-7d9d-425d-a4d4-6d3c764006c7",
+      "payload": {
+        "helmet_stl": "sha256:efb3fc4bb686a33e475c3257a52324e727ba1b79c8059ad9056e70755ad334dd"
+      },
+      "rationale": "Week-1 kernel produced a manifold + watertight helmet"
+    }
+  ],
+  "created_at": "2026-05-19T02:52:24.355699",
+  "updated_at": "2026-05-19T02:52:24.355775"
+}
